@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import './App.css'
+import background from './assets/background.jpg'
 import NewNote from './NewNote'
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
@@ -59,12 +60,11 @@ function App() {
     })
   }
 
-  function onUpdateNotes(id: string, {tags, ...data}: NotesData)
-  {
-     setNotes(prevNotes => {
+  function onUpdateNotes(id: string, { tags, ...data }: NotesData) {
+    setNotes(prevNotes => {
       return prevNotes.map(note => {
         if (note.id === id) {
-          return { ...note, ...data,  tagIds: tags.map(tag => tag.id) }
+          return { ...note, ...data, tagIds: tags.map(tag => tag.id) }
         } else {
           return note
         }
@@ -102,25 +102,25 @@ function App() {
 
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      width: '100%',  
-      backgroundImage: "url('/background.jpg')",
+    <div style={{
+      minHeight: '100vh',
+      width: '100%',
+      backgroundImage: `url(${background})`,
       backgroundRepeat: "repeat",
       backgroundSize: "auto",
       backgroundAttachment: "fixed",
       backgroundPosition: "center center",
-      padding: '0' 
+      padding: '0'
     }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px' }}>
         <Routes>
-          <Route path='/' element={<NotesList notes={notesWithTags} availableTags={tags} updateTag={updateTag} deleteTag={deleteTag}/>}></Route>
+          <Route path='/' element={<NotesList notes={notesWithTags} availableTags={tags} updateTag={updateTag} deleteTag={deleteTag} />}></Route>
           <Route path='/new' element={<NewNote onSubmit={onCreateNote} onAddTag={addTag} availableTags={tags}
           />} />
 
-          <Route path='/:id' element={<NoteLayout notes={notesWithTags}/>}>
-            <Route index  element={<Note deleteNote={deleteNote} />} />
-            <Route path='edit' element={<EditNotes onSubmit={onUpdateNotes} onAddTag={addTag} availableTags={tags}/>} />
+          <Route path='/:id' element={<NoteLayout notes={notesWithTags} />}>
+            <Route index element={<Note deleteNote={deleteNote} />} />
+            <Route path='edit' element={<EditNotes onSubmit={onUpdateNotes} onAddTag={addTag} availableTags={tags} />} />
 
           </Route>
 
