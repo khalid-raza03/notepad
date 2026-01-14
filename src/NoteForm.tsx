@@ -15,80 +15,144 @@ import type { NotesData, Tag } from "./App";
 import { v4 as uuidV4 } from "uuid";
 import { useEditor, EditorContent, Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { Markdown } from "tiptap-markdown";
 
 function EditorToolbar({ editor }: { editor: Editor | null }) {
   if (!editor) return null;
 
   return (
-    <Stack direction="row" spacing={1} flexWrap="wrap" mb={2}>
+    <Stack direction="row" sx={{ gap: '10px' }} flexWrap="wrap" mb={2}>
       <Button
         size="small"
-        variant={editor.isActive("bold") ? "contained" : "outlined"}
+        variant="outlined"
         onClick={() => editor.chain().focus().toggleBold().run()}
+        sx={{
+          backgroundColor: editor.isActive("bold") ? "skyblue" : "transparent",
+          color: editor.isActive("bold") ? "black" : "inherit",
+          "&:hover": {
+            backgroundColor: editor.isActive("bold") ? "skyblue" : "#2667c91a",
+          }
+        }}
       >
         Bold
       </Button>
 
       <Button
         size="small"
-        variant={editor.isActive("italic") ? "contained" : "outlined"}
+        variant="outlined"
         onClick={() => editor.chain().focus().toggleItalic().run()}
+        sx={{
+          backgroundColor: editor.isActive("italic") ? "skyblue" : "transparent",
+          color: editor.isActive("italic") ? "black" : "inherit",
+          "&:hover": {
+            backgroundColor: editor.isActive("italic") ? "skyblue" : "#2667c91a",
+          }
+        }}
       >
         Italic
       </Button>
 
       <Button
         size="small"
-        variant={editor.isActive("strike") ? "contained" : "outlined"}
+        variant="outlined"
         onClick={() => editor.chain().focus().toggleStrike().run()}
+        sx={{
+          backgroundColor: editor.isActive("strike") ? "skyblue" : "transparent",
+          color: editor.isActive("strike") ? "black" : "inherit",
+          "&:hover": {
+            backgroundColor: editor.isActive("strike") ? "skyblue" : " #2667c91a",
+          }
+        }}
       >
         Strike
       </Button>
 
       <Button
         size="small"
-        variant={editor.isActive("heading", { level: 1 }) ? "contained" : "outlined"}
+        variant="outlined"
         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+        sx={{
+          backgroundColor: editor.isActive("heading", { level: 1 }) ? "skyblue" : "transparent",
+          color: editor.isActive("heading", { level: 1 }) ? "black" : "inherit",
+          "&:hover": {
+            backgroundColor: editor.isActive("heading", { level: 1 }) ? "skyblue" : "#2667c91a",
+          }
+        }}
       >
         H1
       </Button>
 
       <Button
         size="small"
-        variant={editor.isActive("heading", { level: 2 }) ? "contained" : "outlined"}
+        variant="outlined"
         onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+        sx={{
+          backgroundColor: editor.isActive("heading", { level: 2 }) ? "skyblue" : "transparent",
+          color: editor.isActive("heading", { level: 2 }) ? "black" : "inherit",
+          "&:hover": {
+            backgroundColor: editor.isActive("heading", { level: 2 }) ? "skyblue" : "#2667c91a",
+          }
+        }}
       >
         H2
       </Button>
 
       <Button
         size="small"
-        variant={editor.isActive("bulletList") ? "contained" : "outlined"}
+        variant="outlined"
         onClick={() => editor.chain().focus().toggleBulletList().run()}
+        sx={{
+          backgroundColor: editor.isActive("bulletList") ? "skyblue" : "transparent",
+          color: editor.isActive("bulletList") ? "black" : "inherit",
+          "&:hover": {
+            backgroundColor: editor.isActive("bulletList") ? "skyblue" : " #2667c91a",
+          }
+        }}
       >
         • List
       </Button>
 
       <Button
         size="small"
-        variant={editor.isActive("orderedList") ? "contained" : "outlined"}
+        variant="outlined"
         onClick={() => editor.chain().focus().toggleOrderedList().run()}
+        sx={{
+          backgroundColor: editor.isActive("orderedList") ? "skyblue" : "transparent",
+          color: editor.isActive("orderedList") ? "black" : "inherit",
+          "&:hover": {
+            backgroundColor: editor.isActive("orderedList") ? "skyblue" : "#2667c91a",
+          }
+        }}
       >
         1. List
       </Button>
 
       <Button
         size="small"
-        variant={editor.isActive("codeBlock") ? "contained" : "outlined"}
+        variant="outlined"
         onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+        sx={{
+          backgroundColor: editor.isActive("codeBlock") ? "skyblue" : "transparent",
+          color: editor.isActive("codeBlock") ? "black" : "inherit",
+          "&:hover": {
+            backgroundColor: editor.isActive("codeBlock") ? "skyblue" : " #2667c91a",
+          }
+        }}
       >
         Code
       </Button>
 
       <Button
         size="small"
-        variant={editor.isActive("blockquote") ? "contained" : "outlined"}
+        variant="outlined"
         onClick={() => editor.chain().focus().toggleBlockquote().run()}
+        sx={{
+          backgroundColor: editor.isActive("blockquote") ? "skyblue" : "transparent",
+          color: editor.isActive("blockquote") ? "black" : "inherit",
+          "&:hover": {
+            backgroundColor: editor.isActive("blockquote") ? "skyblue" : "#2667c91a",
+          }
+        }}
       >
         Quote
       </Button>
@@ -97,6 +161,23 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
 }
 
 
+
+const scrollbarStyles = {
+  "&::-webkit-scrollbar": {
+    height: "8px",
+  },
+  "&::-webkit-scrollbar-track": {
+    background: "rgba(255, 255, 255, 0.1)",
+    borderRadius: "4px",
+  },
+  "&::-webkit-scrollbar-thumb": {
+    background: "rgba(255, 255, 255, 0.3)",
+    borderRadius: "4px",
+  },
+  "&::-webkit-scrollbar-thumb:hover": {
+    background: "rgba(255, 255, 255, 0.5)",
+  },
+};
 
 type NoteFormProps = {
   onSubmit: (data: NotesData) => void;
@@ -117,7 +198,14 @@ export function NoteForm({
   const navigate = useNavigate();
 
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [
+      StarterKit,
+      Markdown.configure({
+        html: true,
+        transformPastedText: true,
+        transformCopiedText: true,
+      }),
+    ],
     content: description,
   });
 
@@ -126,7 +214,7 @@ export function NoteForm({
 
     onSubmit({
       title: notesTitleRef.current!.value,
-      description: editor?.getHTML() || "",
+      description: (editor?.storage as any)?.markdown?.getMarkdown() || "",
       tags: targetTags,
     });
     navigate("..");
@@ -144,10 +232,13 @@ export function NoteForm({
         border: "1px solid rgba(255, 255, 255, 0.3)",
         borderRadius: 3,
         boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
+        maxWidth: '1200px', margin: '0 auto',
         py: 8,
-        px: 4,
+        px: {
+          xs: 2,
+          md: 4,
+        },
         mt: 5,
-        color: "#fff",
       }}
     >
       <Stack spacing={4}>
@@ -162,6 +253,10 @@ export function NoteForm({
               sx={{
                 "& .MuiOutlinedInput-root": {
                   borderRadius: 3,
+                },
+                "& .MuiInputBase-input": {
+                  overflowX: "auto",
+                  ...scrollbarStyles,
                 },
               }}
             />
@@ -219,6 +314,9 @@ export function NoteForm({
                   sx={{
                     "& .MuiOutlinedInput-root": {
                       borderRadius: 3,
+                      flexWrap: "nowrap",
+                      overflowX: "auto",
+                      ...scrollbarStyles,
                     },
                   }}
                 />
@@ -235,7 +333,7 @@ export function NoteForm({
                 boxShadow: 3,
                 "& .ProseMirror": {
                   minHeight: "300px",
-                  padding: "12px",
+                  padding: "30px",
                   border: "1px solid rgba(255, 255, 255, 0.3)",
                   borderRadius: "12px",
                   backgroundColor: "rgba(255, 255, 255, 0.05)",

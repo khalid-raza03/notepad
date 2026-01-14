@@ -1,10 +1,10 @@
 import { Box, Button, Grid, Stack, Typography, Select, MenuItem, FormControl, InputLabel, TextField, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import { useNote } from "./useNote";
 import { Link, useNavigate } from "react-router-dom";
-import ReactMarkdown from 'react-markdown';
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 
 type NoteProps = {
@@ -70,197 +70,226 @@ export function Note({ deleteNote }: NoteProps) {
 
 
     return (
-        <Box
-            id="note-pdf-content"
+        <Stack
+            direction="column"
+            alignItems="center"
+            justifyContent="center"
             sx={{
-                p: 3,
-                borderRadius: 3,
-                backgroundColor: bgColor,
-                fontFamily: fontFamily,
-                transition: 'all 0.3s ease'
+                py: 8,
+                px: {
+                    xs: 2,
+                    md: 4,
+                },
             }}
         >
-            {/* Header section */}
-            <Grid
-                container
-                spacing={2}
+            <Box
+                id="note-pdf-content"
+                sx={{
+                    maxWidth: '1200px', margin: '0 auto',
+                    py: 6,
+                    px: {
+                        xs: 2,
+                        md: 4,
+                    },
+                    borderRadius: 3,
+                    backgroundColor: bgColor,
+                    fontFamily: fontFamily,
+                    transition: 'all 0.3s ease',
+                    "& *": {
+                        fontFamily: "inherit !important",
+                    }
+                }}
             >
-                {/* Title + Tags */}
-                <Grid size={{ xs: 12, md: 8 }}>
-                    <Typography variant="h4" component="h1">
-                        <b>Title:</b>  {note.title}
-                    </Typography>
+                {/* Header section */}
+                <Grid
+                    container
+                    spacing={2}
+                >
+                    {/* Title + Tags */}
+                    <Grid size={{ xs: 12, md: 8 }}>
+                        <Typography variant="h4" component="h1">
+                            <b>Title -</b>  {note.title}
+                        </Typography>
 
-                    {note.tags.length > 0 && (
-                        <Stack
-                            direction="row"
-                            spacing={1}
-                            mt={1}
-                            flexWrap="wrap"
-                        >
-                            {note.tags.map((tag) => (
-                                <Box
-                                    key={tag.id}
-                                    sx={{
-                                        px: 1.5,
-                                        py: 0.5,
-                                        borderRadius: 1,
-                                        bgcolor: "primary.main",
-                                        color: "white",
-                                        fontSize: "0.75rem",
-                                    }}
-                                >
-                                    {tag.label}
-                                </Box>
-                            ))}
+                        {note.tags.length > 0 && (
+                            <Stack
+                                direction="row"
+                                spacing={1}
+                                mt={1}
+                                flexWrap="wrap"
+                            >
+                                {note.tags.map((tag) => (
+                                    <Box
+                                        key={tag.id}
+                                        sx={{
+                                            px: 1.5,
+                                            py: 0.5,
+                                            borderRadius: 1,
+                                            bgcolor: "primary.main",
+                                            color: "white",
+                                            fontSize: "0.75rem",
+                                        }}
+                                    >
+                                        {tag.label}
+                                    </Box>
+                                ))}
+                            </Stack>
+                        )}
+                    </Grid>
+
+                    {/* Action buttons */}
+                    <Grid size={{ xs: 12, md: 6 }} className="pdf-exclude">
+                        <Stack direction="row" spacing={2} justifyContent={{ xs: "flex-start" }} flexWrap="wrap">
+                            <Button
+                                component={Link}
+                                to={`/${note.id}/edit`}
+                                variant="contained"
+                            >
+                                Edit
+                            </Button>
+                            <Button variant="outlined" onClick={() => {
+                                deleteNote(note.id);
+                                navigate("/");
+                            }}>
+                                Delete
+                            </Button>
+                            <Button
+                                component={Link}
+                                to="/notes"
+                                variant="outlined"
+                            >
+                                Back
+                            </Button>
                         </Stack>
-                    )}
-                </Grid>
+                    </Grid>
 
-                {/* Action buttons */}
-                <Grid size={{ xs: 12, md: 6 }} className="pdf-exclude">
-                    <Stack direction="row" spacing={2} justifyContent={{ xs: "flex-start" }} flexWrap="wrap">
-                        <Button
-                            component={Link}
-                            to={`/${note.id}/edit`}
-                            variant="contained"
-                        >
-                            Edit
-                        </Button>
-                        <Button variant="outlined" onClick={() => {
-                            deleteNote(note.id);
-                            navigate("/");
+                    <Stack direction="row" sx={{ gap: "10px" }} flexWrap="wrap" alignItems="center" className="pdf-exclude">
+                        {/* Background color */}
+                        <Box sx={{
+                            border: '2px solid #ddd',
+                            borderRadius: 1,
+                            p: 0.5,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1
                         }}>
-                            Delete
-                        </Button>
-                        <Button
-                            component={Link}
-                            to="/"
-                            variant="outlined"
-                        >
-                            Back
+                            <Typography variant="caption">Background:</Typography>
+                            <input
+                                type="color"
+                                value={bgColor}
+                                onChange={(e) => setBgColor(e.target.value)}
+                                style={{
+                                    width: '40px',
+                                    height: '30px',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer'
+                                }}
+                            />
+                        </Box>
+
+                        {/* Font family */}
+                        <FormControl size="small" sx={{ minWidth: 120 }}>
+                            <InputLabel>Font Family</InputLabel>
+                            <Select
+                                value={fontFamily}
+                                onChange={(e) => setFontFamily(e.target.value)}
+                                label="Font Family"
+                                size="small"
+                            >
+                                {/* Generic families */}
+                                <MenuItem value="serif">Serif (Default)</MenuItem>
+                                <MenuItem value="sans-serif">Sans-serif</MenuItem>
+                                <MenuItem value="monospace">Monospace</MenuItem>
+                                <MenuItem value="cursive">Cursive</MenuItem>
+
+                                {/* Specific system fonts */}
+                                <MenuItem value="Verdana, Geneva, sans-serif">Verdana</MenuItem>
+                                <MenuItem value="'Times New Roman', Times, serif">Times New Roman</MenuItem>
+                                <MenuItem value="'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif">
+                                    Franklin Gothic
+                                </MenuItem>
+                                <MenuItem value="'Lucida Sans', 'Lucida Sans Unicode', 'Lucida Grande', sans-serif">
+                                    Lucida Sans
+                                </MenuItem>
+                                <MenuItem value="'Gill Sans', 'Gill Sans MT', Calibri, sans-serif">
+                                    Gill Sans
+                                </MenuItem>
+                                <MenuItem value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">
+                                    Segoe UI
+                                </MenuItem>
+                                <MenuItem value="'Trebuchet MS', Helvetica, sans-serif">
+                                    Trebuchet MS
+                                </MenuItem>
+                                <MenuItem value="Arial, Helvetica, sans-serif">
+                                    Arial
+                                </MenuItem>
+                                <MenuItem value="Cambria, Cochin, Georgia, Times, 'Times New Roman', serif">
+                                    Cambria
+                                </MenuItem>
+                                <MenuItem value="Georgia, 'Times New Roman', Times, serif">
+                                    Georgia
+                                </MenuItem>
+                                <MenuItem value="Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif">
+                                    Impact
+                                </MenuItem>
+                            </Select>
+
+                        </FormControl>
+
+                        <Button variant="outlined" onClick={() => setOpenDialog(true)}>
+                            Download PDF
                         </Button>
                     </Stack>
+
                 </Grid>
 
-                <Stack direction="row" sx={{ gap: "10px" }} flexWrap="wrap" alignItems="center" className="pdf-exclude">
-                    {/* Background color */}
-                    <Box sx={{
-                        border: '2px solid #ddd',
-                        borderRadius: 1,
-                        p: 0.5,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1
-                    }}>
-                        <Typography variant="caption">Background:</Typography>
-                        <input
-                            type="color"
-                            value={bgColor}
-                            onChange={(e) => setBgColor(e.target.value)}
-                            style={{
-                                width: '40px',
-                                height: '30px',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer'
-                            }}
+                {/* PDF Download Dialog */}
+                <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+                    <DialogTitle>Download PDF</DialogTitle>
+                    <DialogContent>
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            label="File Name"
+                            fullWidth
+                            variant="outlined"
+                            value={fileName}
+                            onChange={(e) => setFileName(e.target.value)}
                         />
-                    </Box>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+                        <Button onClick={handleDownloadPDF} variant="contained">Download</Button>
+                    </DialogActions>
+                </Dialog>
 
-                    {/* Font family */}
-                    <FormControl size="small" sx={{ minWidth: 120 }}>
-                        <InputLabel>Font Family</InputLabel>
-                        <Select
-                            value={fontFamily}
-                            onChange={(e) => setFontFamily(e.target.value)}
-                            label="Font Family"
-                            size="small"
-                        >
-                            {/* Generic families */}
-                            <MenuItem value="serif">Serif (Default)</MenuItem>
-                            <MenuItem value="sans-serif">Sans-serif</MenuItem>
-                            <MenuItem value="monospace">Monospace</MenuItem>
-                            <MenuItem value="cursive">Cursive</MenuItem>
-
-                            {/* Specific system fonts */}
-                            <MenuItem value="Verdana, Geneva, sans-serif">Verdana</MenuItem>
-                            <MenuItem value="'Times New Roman', Times, serif">Times New Roman</MenuItem>
-                            <MenuItem value="'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif">
-                                Franklin Gothic
-                            </MenuItem>
-                            <MenuItem value="'Lucida Sans', 'Lucida Sans Unicode', 'Lucida Grande', sans-serif">
-                                Lucida Sans
-                            </MenuItem>
-                            <MenuItem value="'Gill Sans', 'Gill Sans MT', Calibri, sans-serif">
-                                Gill Sans
-                            </MenuItem>
-                            <MenuItem value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">
-                                Segoe UI
-                            </MenuItem>
-                            <MenuItem value="'Trebuchet MS', Helvetica, sans-serif">
-                                Trebuchet MS
-                            </MenuItem>
-                            <MenuItem value="Arial, Helvetica, sans-serif">
-                                Arial
-                            </MenuItem>
-                            <MenuItem value="Cambria, Cochin, Georgia, Times, 'Times New Roman', serif">
-                                Cambria
-                            </MenuItem>
-                            <MenuItem value="Georgia, 'Times New Roman', Times, serif">
-                                Georgia
-                            </MenuItem>
-                            <MenuItem value="Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif">
-                                Impact
-                            </MenuItem>
-                        </Select>
-
-                    </FormControl>
-
-                    <Button variant="outlined" onClick={() => setOpenDialog(true)}>
-                        Download PDF
-                    </Button>
-                </Stack>
-
-            </Grid>
-
-            {/* PDF Download Dialog */}
-            <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-                <DialogTitle>Download PDF</DialogTitle>
-                <DialogContent>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        label="File Name"
-                        fullWidth
-                        variant="outlined"
-                        value={fileName}
-                        onChange={(e) => setFileName(e.target.value)}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-                    <Button onClick={handleDownloadPDF} variant="contained">Download</Button>
-                </DialogActions>
-            </Dialog>
-
-            {/* Description */}
-            <Box mt={4}
-                sx={{
-                    textDecoration: 'none',
-                    backgroundColor: '#f8cd6a7e',
-                    borderRadius: 3,
-                    boxShadow: 5,
-                    padding: 3
-                }}>
-                <div 
-                    dangerouslySetInnerHTML={{ __html: note.description }}
-                    style={{ 
-                        color: 'inherit',
-                        fontFamily: 'inherit'
-                    }}
-                />
+                {/* Description */}
+                <Box mt={4}
+                    sx={{
+                        textDecoration: 'none',
+                        backgroundColor: 'transparent',
+                        borderRadius: 3,
+                        // overflow: 'scroll',
+                        textWrap: 'break-word',
+                        boxShadow: 5,
+                        padding: 3,
+                        "& pre": {
+                            overflowX: "auto",
+                            maxWidth: "100%",
+                            backgroundColor: "rgba(0, 0, 0, 0.05)",
+                            borderRadius: 2,
+                            p: 2,
+                            my: 2
+                        },
+                        "& code": {
+                            fontFamily: "monospace !important"
+                        }
+                    }}>
+                    <ReactMarkdown>{note.description}</ReactMarkdown>
+                </Box>
             </Box>
-        </Box>
+        </Stack>
+
     );
 }

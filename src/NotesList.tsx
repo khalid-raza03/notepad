@@ -33,6 +33,10 @@ export default function NotesList({ availableTags, notes, updateTag, deleteTag }
             backgroundImage: "url('/background.svg')",
             backgroundRepeat: "repeat",
             backgroundSize: "cover",
+            maxWidth: '1200px', margin: '0 auto', padding: {
+                xs: 2,
+                md: 4,
+            },
         }}>
             <Stack spacing={4} sx={{ justifyContent: "space-between", alignItems: "center" }}>
                 <Typography
@@ -216,7 +220,7 @@ function EditTagsModal({ availableTags, handleClose, opened, updateTag, deleteTa
         transform: 'translate(-50%, -50%)',
         maxWidth: '520px',
         maxHeight: '80vh',
-        width: '90%',
+        width: { xs: "100%", md: "90%" },
         background: 'linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.08))',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
@@ -226,7 +230,11 @@ function EditTagsModal({ availableTags, handleClose, opened, updateTag, deleteTa
     0 8px 32px rgba(0, 0, 0, 0.25),
     inset 0 0 0 1px rgba(255,255,255,0.2)
   `,
-        p: 4,
+        py: 4,
+        px: {
+            xs: 2,
+            md: 4,
+        },
         overflowY: 'auto',
         transition: 'all 0.3s ease-in-out',
 
@@ -257,7 +265,7 @@ function EditTagsModal({ availableTags, handleClose, opened, updateTag, deleteTa
         >
             <Box sx={style}>
                 <Grid display={"flex"} mb={"1rem"} width={"100%"} justifyContent={"space-between"}>
-                    <Typography id="modal-modal-title" variant="h5" component="h3" fontWeight={600}>
+                    <Typography id="modal-modal-title" variant="h5" component="h3" sx={{ fontWeight: 600, fontSize: { xs: "18px", md: "24px" } }}>
                         Edit your tags
                     </Typography>
                     <Stack direction="row" spacing={1}>
@@ -271,7 +279,9 @@ function EditTagsModal({ availableTags, handleClose, opened, updateTag, deleteTa
                 >
                     <Stack gap={2}>
                         {availableTags.map(tag => (
-                            <Grid container rowSpacing={1} alignItems={"center"} columnSpacing={{ xs: 1, sm: 2, md: 3 }} key={tag.id}>
+                            <Grid container rowSpacing={1} alignItems={"center"}
+                                justifyContent={"space-between"}
+                                columnSpacing={{ xs: 1, sm: 2, md: 3 }} key={tag.id}>
                                 <Grid size={{ xs: 9 }}>
                                     <Item sx={{ bgcolor: "transparent" }}>
                                         <TextField
@@ -292,8 +302,8 @@ function EditTagsModal({ availableTags, handleClose, opened, updateTag, deleteTa
                                 </Grid>
                                 <Grid size={{ xs: 'auto' }}>
                                     <Item sx={{ color: "white", bgcolor: "#f73333" }}>
-                                        <Button onClick={() => deleteTag(tag.id)}>
-                                            <ClearOutlined sx={{ fontSize: "35px", color: "white" }} />
+                                        <Button onClick={() => deleteTag(tag.id)} sx={{ minWidth: "0" }}>
+                                            <ClearOutlined sx={{ fontSize: { xs: "20px", md: "35px" }, color: "white" }} />
                                         </Button>
                                     </Item>
                                 </Grid>
