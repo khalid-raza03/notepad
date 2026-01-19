@@ -1,6 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import './App.css'
-import background from '/background.webp'
 import LandingPage from './LandingPage'
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
@@ -109,7 +108,7 @@ function App() {
     <div style={{
       minHeight: '100vh',
       width: '100%',
-      backgroundImage: `url(${background})`,
+      backgroundImage: `url(${import.meta.env.BASE_URL}background.webp)`,
       backgroundRepeat: "repeat",
       backgroundSize: "auto",
       backgroundPosition: "center center",
