@@ -1,20 +1,21 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import './App.css'
-import background from './assets/background.jpg'
-import NewNote from './NewNote'
+import background from '/background.webp'
 import LandingPage from './LandingPage'
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import { useLocalStorage } from "usehooks-ts";
-import { useMemo } from 'react';
+import { useMemo, lazy, Suspense } from 'react';
 import { v4 as uuidV4 } from 'uuid';
-import NotesList from './NotesList';
-import NoteLayout from './NoteLayout';
 import { Note } from './Note';
-import EditNotes from './EditNotes';
-import { Box, Typography } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
+
+const NewNote = lazy(() => import('./NewNote'));
+const NotesList = lazy(() => import('./NotesList'));
+const NoteLayout = lazy(() => import('./NoteLayout'));
+const EditNotes = lazy(() => import('./EditNotes'));
 
 
 export type Tag = {
@@ -111,31 +112,33 @@ function App() {
       backgroundImage: `url(${background})`,
       backgroundRepeat: "repeat",
       backgroundSize: "auto",
-      backgroundAttachment: "fixed",
       backgroundPosition: "center center",
       padding: ' 0'
     }}>
       <Box>
-        <Typography variant="h3" sx={{ fontWeight: "light", fontFamily: "Times New Roman", fontSize: "calc(10px + (17 - 10) * ((100vw - 320px) / (1820 - 320)))", position: "absolute", top: "5%", right: "5%", color: "text.secondary", fontStyle: "italic", zIndex: 1 }}>
-          <span style={{ fontWeight: "bold" }}>Note:</span> your files are auto saved
-        </Typography>
-        <Routes>
-          <Route path='/' element={<LandingPage />}></Route>
-          <Route path='/notes' element={<NotesList notes={notesWithTags} availableTags={tags} updateTag={updateTag} deleteTag={deleteTag} />}></Route>
-          <Route path='/new' element={<NewNote onSubmit={onCreateNote} onAddTag={addTag} availableTags={tags}
-          />} />
+        <Suspense fallback={
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+            <CircularProgress sx={{ color: 'white' }} />
+          </Box>
+        }>
+          <Routes>
+            <Route path='/' element={<LandingPage />}></Route>
+            <Route path='/notes' element={<NotesList notes={notesWithTags} availableTags={tags} updateTag={updateTag} deleteTag={deleteTag} />}></Route>
+            <Route path='/new' element={<NewNote onSubmit={onCreateNote} onAddTag={addTag} availableTags={tags}
+            />} />
 
-          <Route path='/:id' element={<NoteLayout notes={notesWithTags} />}>
-            <Route index element={<Note deleteNote={deleteNote} />} />
-            <Route path='edit' element={<EditNotes onSubmit={onUpdateNotes} onAddTag={addTag} availableTags={tags} />} />
+            <Route path='/:id' element={<NoteLayout notes={notesWithTags} />}>
+              <Route index element={<Note deleteNote={deleteNote} />} />
+              <Route path='edit' element={<EditNotes onSubmit={onUpdateNotes} onAddTag={addTag} availableTags={tags} />} />
 
-          </Route>
+            </Route>
 
-          <Route path='*' element={<Navigate to="/" />}></Route>
-        </Routes>
+            <Route path='*' element={<Navigate to="/" />}></Route>
+          </Routes>
+        </Suspense>
       </Box>
 
-    </div>
+    </div >
   )
 }
 

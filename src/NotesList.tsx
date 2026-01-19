@@ -33,91 +33,176 @@ export default function NotesList({ availableTags, notes, updateTag, deleteTag }
             backgroundImage: "url('/background.svg')",
             backgroundRepeat: "repeat",
             backgroundSize: "cover",
-            maxWidth: '1200px', margin: '0 auto', padding: {
-                xs: 2,
-                md: 4,
-            },
+            minHeight: '100vh',
+            animation: 'fadeIn 0.5s ease-in',
+            '@keyframes fadeIn': {
+                from: { opacity: 0 },
+                to: { opacity: 1 }
+            }
         }}>
-            <Stack spacing={4} sx={{ justifyContent: "space-between", alignItems: "center" }}>
-                <Typography
-                    variant="h3" sx={{
-                        fontWeight: "bold",
-                        fontFamily: "Times New Roman",
-                        fontSize: "calc(18px + (45 - 18) * ((100vw - 320px) / (1820 - 320)))"
+            <Box sx={{
+                maxWidth: '1200px',
+                margin: '0 auto',
+                padding: {
+                    xs: 2,
+                    md: 4,
+                },
+            }}>
+                {/* Header Section */}
+                <Stack
+                    spacing={3}
+                    sx={{
+                        mb: 4,
+                        animation: 'slideDown 0.6s ease-out',
+                        '@keyframes slideDown': {
+                            from: {
+                                opacity: 0,
+                                transform: 'translateY(-30px)'
+                            },
+                            to: {
+                                opacity: 1,
+                                transform: 'translateY(0)'
+                            }
+                        }
                     }}
-                >Your Notes List</Typography>
+                >
+                    <Stack
+                        direction={{ xs: 'column', sm: 'row' }}
+                        justifyContent="space-between"
+                        alignItems={{ xs: 'stretch', sm: 'center' }}
+                        spacing={2}
+                    >
+                        <Typography
+                            variant="h3"
+                            sx={{
+                                fontWeight: "bold",
+                                fontFamily: "Times New Roman",
+                                fontSize: "calc(24px + (45 - 24) * ((100vw - 320px) / (1820 - 320)))",
+                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                                backgroundClip: 'text',
+                            }}
+                        >Your Notes List</Typography>
 
-                <Grid sx={{ gap: "10px", display: "flex", justifyContent: "space-between" }} spacing={2}>
-                    <Button
-                        component={Link}
-                        to="/new" variant="contained">Create</Button>
-                    <Button variant="outlined" onClick={() => setOpen(true)} >Edit Tags </Button>
+                        <Stack direction="row" spacing={2}>
+                            <Button
+                                component={Link}
+                                to="/new"
+                                variant="contained"
+                                sx={{
+                                    animation: 'pulse 2s ease-in-out infinite',
+                                    '@keyframes pulse': {
+                                        '0%, 100%': { transform: 'scale(1)' },
+                                        '50%': { transform: 'scale(1.05)' }
+                                    },
+                                    '&:hover': {
+                                        animation: 'none',
+                                        transform: 'scale(1.08)',
+                                        boxShadow: '0 6px 20px rgba(0,0,0,0.3)'
+                                    },
+                                    transition: 'all 0.3s ease'
+                                }}
+                            >Create</Button>
+                            <Button
+                                variant="outlined"
+                                onClick={() => setOpen(true)}
+                                sx={{
+                                    '&:hover': {
+                                        transform: 'scale(1.05)',
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                                    },
+                                    transition: 'all 0.3s ease'
+                                }}
+                            >Edit Tags</Button>
+                        </Stack>
+                    </Stack>
+
+                    {/* Search and Filter Section */}
+                    <Stack spacing={2}>
+                        <TextField
+                            label="Search by Title"
+                            required
+                            fullWidth
+                            value={title}
+                            onChange={e => setTitle(e.target.value)}
+                            sx={{
+                                "& .MuiOutlinedInput-root": {
+                                    borderRadius: 3,
+                                    transition: 'all 0.3s ease',
+                                    '&:hover': {
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                                    },
+                                    '&.Mui-focused': {
+                                        boxShadow: '0 6px 16px rgba(102, 126, 234, 0.3)'
+                                    }
+                                },
+                            }}
+                        />
+
+                        <ReactSelect
+                            isMulti
+                            styles={{
+                                control: (base, state) => ({
+                                    ...base,
+                                    padding: '10px',
+                                    borderRadius: 12,
+                                    transition: 'all 0.3s ease',
+                                    boxShadow: state.isFocused ? '0 6px 16px rgba(102, 126, 234, 0.3)' : 'none',
+                                    '&:hover': {
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                                    }
+                                })
+                            }}
+                            options={availableTags.map(tag => ({
+                                value: tag.id,
+                                label: tag.label
+                            }))}
+                            value={selectedTag.map(tag => ({
+                                value: tag.id,
+                                label: tag.label
+                            }))}
+                            onChange={tags => {
+                                setSelectedTag((tags || []).map((tag: { value: string; label: string }) => ({
+                                    id: tag.value,
+                                    label: tag.label
+                                })));
+                            }}
+                            placeholder="Filter by Tags"
+                            isClearable
+                        />
+                    </Stack>
+                </Stack>
+
+                {/* Notes Grid */}
+                <Grid container spacing={3}>
+                    {filteredNotes.map((note, index) => (
+                        <Grid
+                            key={note.id}
+                            size={{ xs: 12, sm: 6, lg: 4, xl: 3 }}
+                            sx={{
+                                animation: 'fadeInUp 0.5s ease-out',
+                                animationDelay: `${index * 0.1}s`,
+                                animationFillMode: 'both',
+                                '@keyframes fadeInUp': {
+                                    from: {
+                                        opacity: 0,
+                                        transform: 'translateY(30px)'
+                                    },
+                                    to: {
+                                        opacity: 1,
+                                        transform: 'translateY(0)'
+                                    }
+                                }
+                            }}
+                        >
+                            <NoteCard id={note.id} title={note.title} tags={note.tags} />
+                        </Grid>
+                    ))}
                 </Grid>
 
-            </Stack>
-
-
-            <Grid component="form" sx={{ mt: 4 }}>
-
-                {/* title */}
-                <TextField
-                    label="Search by Title"
-                    required
-                    fullWidth
-                    value={title}
-                    onChange={e => setTitle(e.target.value)}
-                    sx={{
-                        "& .MuiOutlinedInput-root": {
-                            borderRadius: 3,
-                        },
-                    }}
-                />
-            </Grid>
-
-            {/* tags */}
-            <Grid size={{ xs: 12, md: 6 }} sx={{ my: 2 }}>
-                <ReactSelect
-                    isMulti
-                    styles={{
-                        control: (base) => ({
-                            ...base,
-                            padding: '10px',
-
-                            borderRadius: 12
-                        })
-                    }}
-                    options={availableTags.map(tag => ({
-                        value: tag.id,
-                        label: tag.label
-                    }))}
-                    value={selectedTag.map(tag => ({
-                        value: tag.id,
-                        label: tag.label
-                    }))}
-                    onChange={tags => {
-                        setSelectedTag((tags || []).map((tag: { value: string; label: string }) => ({
-                            id: tag.value,
-                            label: tag.label
-                        })));
-                    }}
-                    placeholder="Filter by Tags"
-                    isClearable
-                />
-            </Grid>
-
-            {/* Notes */}
-            <Grid container spacing={3}>
-                {filteredNotes.map((note) => (
-                    <Grid
-                        key={note.id}
-                        size={{ xs: 12, sm: 6, lg: 4, xl: 3 }}
-                    >
-                        <NoteCard id={note.id} title={note.title} tags={note.tags} />
-                    </Grid>
-                ))}
-            </Grid>
-
-            <EditTagsModal updateTag={updateTag} deleteTag={deleteTag} availableTags={availableTags} opened={open} handleClose={() => setOpen(false)} />
+                <EditTagsModal updateTag={updateTag} deleteTag={deleteTag} availableTags={availableTags} opened={open} handleClose={() => setOpen(false)} />
+            </Box>
         </Box>
     )
 }
@@ -143,15 +228,26 @@ function NoteCard({ id, title, tags }: simplifiedNote) {
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
-                transition: 'transform 0.3s, box-shadow 0.2s',
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
                 '&:hover': {
-                    transform: 'scale(1.05)',
-                    boxShadow: 6
+                    transform: 'translateY(-8px) scale(1.02)',
+                    boxShadow: '0 12px 24px rgba(0,0,0,0.15)',
+                    background: '#ffffffaa',
+                    border: '1px solid rgba(102, 126, 234, 0.3)',
                 }
             }}
         >
             <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <Typography variant="h5" component="h2" sx={{ fontWeight: 600, color: 'text.primary', fontStyle: 'italic' }}>
+                <Typography variant="h5" component="h2" sx={{
+                    fontWeight: 600,
+                    color: 'text.primary',
+                    fontStyle: 'italic',
+                    transition: 'color 0.3s ease',
+                    '&:hover': {
+                        color: '#667eea'
+                    }
+                }}>
                     {title}
                 </Typography>
                 {tags.length > 0 && (
@@ -165,7 +261,12 @@ function NoteCard({ id, title, tags }: simplifiedNote) {
                                     borderRadius: 1,
                                     bgcolor: 'primary.main',
                                     color: 'white',
-                                    fontSize: '0.75rem'
+                                    fontSize: '0.75rem',
+                                    transition: 'all 0.3s ease',
+                                    '&:hover': {
+                                        transform: 'scale(1.1)',
+                                        boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+                                    }
                                 }}
                             >
                                 {tag.label}
@@ -237,6 +338,17 @@ function EditTagsModal({ availableTags, handleClose, opened, updateTag, deleteTa
         },
         overflowY: 'auto',
         transition: 'all 0.3s ease-in-out',
+        animation: opened ? 'slideIn 0.4s ease-out' : 'none',
+        '@keyframes slideIn': {
+            from: {
+                opacity: 0,
+                transform: 'translate(-50%, -45%) scale(0.9)'
+            },
+            to: {
+                opacity: 1,
+                transform: 'translate(-50%, -50%) scale(1)'
+            }
+        },
 
         '&::-webkit-scrollbar': { width: '10px' },
         '&::-webkit-scrollbar-track': {
@@ -248,8 +360,7 @@ function EditTagsModal({ availableTags, handleClose, opened, updateTag, deleteTa
             borderRadius: '10px',
         },
         '&::-webkit-scrollbar-button': { display: 'none' },
-    }), []);
-
+    }), [opened]);
 
 
 
@@ -269,19 +380,56 @@ function EditTagsModal({ availableTags, handleClose, opened, updateTag, deleteTa
                         Edit your tags
                     </Typography>
                     <Stack direction="row" spacing={1}>
-                        <Button variant="contained" onClick={handleSaveAll}>Save</Button>
-                        <Button onClick={handleClose}><ClearOutlined sx={{ fontSize: "25px", color: "black" }} /></Button>
+                        <Button
+                            variant="contained"
+                            onClick={handleSaveAll}
+                            sx={{
+                                transition: 'all 0.3s ease',
+                                '&:hover': {
+                                    transform: 'scale(1.05)',
+                                    boxShadow: '0 6px 16px rgba(0,0,0,0.3)'
+                                }
+                            }}
+                        >Save</Button>
+                        <Button
+                            onClick={handleClose}
+                            sx={{
+                                transition: 'all 0.3s ease-in-out',
+                                '&:hover': {
+                                    transform: 'rotate(90deg)',
+            
+                                }
+                            }}
+                        ><ClearOutlined sx={{ fontSize: "25px", color: "black" }} /></Button>
                     </Stack>
                 </Grid>
 
-                <Box mt={2}
-
-                >
+                <Box mt={2}>
                     <Stack gap={2}>
-                        {availableTags.map(tag => (
-                            <Grid container rowSpacing={1} alignItems={"center"}
+                        {availableTags.map((tag, index) => (
+                            <Grid
+                                container
+                                rowSpacing={1}
+                                alignItems={"center"}
                                 justifyContent={"space-between"}
-                                columnSpacing={{ xs: 1, sm: 2, md: 3 }} key={tag.id}>
+                                columnSpacing={{ xs: 1, sm: 2, md: 3 }}
+                                key={tag.id}
+                                sx={{
+                                    animation: 'fadeInLeft 0.4s ease-out',
+                                    animationDelay: `${index * 0.05}s`,
+                                    animationFillMode: 'both',
+                                    '@keyframes fadeInLeft': {
+                                        from: {
+                                            opacity: 0,
+                                            transform: 'translateX(-20px)'
+                                        },
+                                        to: {
+                                            opacity: 1,
+                                            transform: 'translateX(0)'
+                                        }
+                                    }
+                                }}
+                            >
                                 <Grid size={{ xs: 9 }}>
                                     <Item sx={{ bgcolor: "transparent" }}>
                                         <TextField
@@ -295,14 +443,32 @@ function EditTagsModal({ availableTags, handleClose, opened, updateTag, deleteTa
                                             sx={{
                                                 "& .MuiOutlinedInput-root": {
                                                     borderRadius: 2,
+                                                    transition: 'all 0.3s ease',
+                                                    '&:hover': {
+                                                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                                                    },
+                                                    '&.Mui-focused': {
+                                                        boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)'
+                                                    }
                                                 },
                                             }}
                                         />
                                     </Item>
                                 </Grid>
                                 <Grid size={{ xs: 'auto' }}>
-                                    <Item sx={{ color: "white", bgcolor: "#f73333" }}>
-                                        <Button onClick={() => deleteTag(tag.id)} sx={{ minWidth: "0" }}>
+                                    <Item sx={{ bgcolor: "#d32f2f",  borderRadius:"50%"}}>
+                                        <Button
+                                            onClick={() => deleteTag(tag.id)}
+                                            sx={{
+                                                minWidth: "0",
+                                                transition: 'all 0.3s ease',
+                                                borderRadius:"50%",
+                                                '&:hover': {
+                                                    transform: 'scale(1.1) rotate(90deg)',
+                                                    backgroundColor: '#d32f2f'
+                                                }
+                                            }}
+                                        >
                                             <ClearOutlined sx={{ fontSize: { xs: "20px", md: "35px" }, color: "white" }} />
                                         </Button>
                                     </Item>

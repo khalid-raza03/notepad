@@ -12,7 +12,8 @@ const LandingPage = () => {
     const [show, setShow] = useState(false);
 
     useEffect(() => {
-        setShow(true);
+        const timer = setTimeout(() => setShow(true), 0);
+        return () => clearTimeout(timer);
     }, []);
 
     const features = [
@@ -34,7 +35,7 @@ const LandingPage = () => {
         {
             icon: <SaveIcon sx={{ fontSize: 48, color: '#87CEEB' }} />,
             title: 'Auto-Save',
-            description: 'Never lose your work. All notes are automatically saved to your browser\'s local storage.'
+            description: 'Never lose your work. All notes are automatically saved to your browser\'s local storage. But do not delete cache of your browser otherwise you can loose your work. Persistent saving feature will be added in future.' 
         }
     ];
 

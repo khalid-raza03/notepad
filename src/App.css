@@ -3,3 +3,19 @@
     padding: 0;
     box-sizing: border-box;
 }
+
+/* TipTap task list */
+ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0;
+}
+
+ul[data-type="taskList"] li {
+  display: flex;
+  gap: 5px;
+  padding: 6px;
+}
+
+li[data-type="taskItem"] > label {
+  margin-right: 8px;
+}
