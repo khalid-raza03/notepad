@@ -33,7 +33,7 @@ import TiptapLink from "@tiptap/extension-link";
 import { ResizableImage } from "./utils/ResizableImage.ts"
 
 
-import { FormatBold, FormatColorResetTwoTone, FormatStrikethroughSharp, FormatUnderlined } from "@mui/icons-material";
+import { FormatBold, FormatColorResetTwoTone, FormatStrikethroughSharp, FormatUnderlined, Undo, Redo } from "@mui/icons-material";
 import { CircleCheckBig, Code, Heading1, Heading2, Heading3, ImageUpIcon, Link2Icon, Link2Off, List, ListOrdered, } from 'lucide-react';
 import { TextStyle } from "@tiptap/extension-text-style";
 
@@ -131,12 +131,14 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
     "&:hover": {
       backgroundColor: isActive ? "skyblue" : "#2667c91a",
       transform: 'scale(1.05)',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+      boxShadow: '0 2px 8px #00000026'
     }
   });
 
   return (
     <Stack direction="row" sx={{ gap: '10px', padding: "10px" }} flexWrap="wrap" mb={2}>
+
+
       <Button
         size="small"
         variant="outlined"
@@ -437,6 +439,7 @@ export function NoteForm({
   description = "",
   tags = [],
 }: NoteFormProps) {
+  const [, forceUpdate] = useState({});
   const notesTitleRef = useRef<HTMLInputElement>(null);
   const [targetTags, setTargetTags] = useState<Tag[]>(tags);
   const navigate = useNavigate();
@@ -466,12 +469,17 @@ export function NoteForm({
       }),
       Markdown.configure({
         html: true,
-        transformPastedText: true,
-        transformCopiedText: true,
+        transformPastedText: false,
+        transformCopiedText: false,
       }),
+
     ],
     content: description,
+    onUpdate: () => forceUpdate({}),
   });
+
+
+
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -483,6 +491,8 @@ export function NoteForm({
     });
     navigate(-1);
   }
+
+
 
 
   return (
@@ -684,7 +694,7 @@ export function NoteForm({
 
           <Stack
             direction="row"
-            justifyContent="flex-end"
+            justifyContent="space-between"
             spacing={2}
             sx={{
               width: "100%",
@@ -697,37 +707,80 @@ export function NoteForm({
               }
             }}
           >
-            <Button
-              type="submit"
-              variant="contained"
-              endIcon={<SendIcon />}
-              sx={{
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  transform: 'scale(1.05) translateY(-2px)',
-                  boxShadow: '0 8px 20px rgba(0,0,0,0.3)'
-                }
-              }}
-            >
-              SUBMIT
-            </Button>
 
-            <Button
-              component={Link}
-              to="/notes"
-              variant="outlined"
-              startIcon={<CloseIcon />}
-              sx={{
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  transform: 'scale(1.05) translateY(-2px)',
-                  boxShadow: '0 6px 16px rgba(0,0,0,0.2)',
-                  backgroundColor: 'rgba(255,0,0,0.05)'
-                }
-              }}
-            >
-              Cancel
-            </Button>
+
+            <Box display={"flex"} gap={"10px"}>
+              <Button
+                type="button"
+                size="small"
+                variant="outlined"
+                onClick={() => editor?.chain().focus().undo().run()}
+                disabled={!editor?.can().undo()}
+                sx={{
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    transform: 'scale(1.05)',
+                    boxShadow: '0 2px 8px #00000026'
+                  }
+                }}
+              >
+                <Undo />
+              </Button>
+
+              <Button
+                type="button"
+                size="small"
+                variant="outlined"
+                onClick={() => editor?.chain().focus().redo().run()}
+                disabled={!editor?.can().redo()}
+                sx={{
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    transform: 'scale(1.05)',
+                    boxShadow: '0 2px 8px #00000026'
+                  }
+                }}
+              >
+                <Redo />
+              </Button>
+            </Box>
+
+
+            <Box display={"flex"} gap={"10px"}>
+              <Button
+
+                type="submit"
+                variant="contained"
+                endIcon={<SendIcon />}
+                sx={{
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    transform: 'scale(1.05) translateY(-2px)',
+                    boxShadow: '0 8px 20px rgba(0,0,0,0.3)'
+                  }
+                }}
+              >
+                SUBMIT
+              </Button>
+
+              <Button
+                component={Link}
+                to="/notes"
+                variant="outlined"
+                startIcon={<CloseIcon />}
+                sx={{
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    transform: 'scale(1.05) translateY(-2px)',
+                    boxShadow: '0 6px 16px rgba(0,0,0,0.2)',
+                    backgroundColor: 'rgba(255,0,0,0.05)'
+                  }
+                }}
+              >
+                Cancel
+              </Button>
+            </Box>
+
           </Stack>
         </Grid>
       </Stack>

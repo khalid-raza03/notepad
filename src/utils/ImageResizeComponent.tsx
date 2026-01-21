@@ -1,50 +1,39 @@
 import { NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
-import React, { useRef, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Box } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
 
 export const ImageResizeComponent: React.FC<NodeViewProps> = (props) => {
     const { node, updateAttributes, selected } = props;
-    const { width, src, alt, title } = node.attrs;
+    const { width, height, src, alt, title } = node.attrs;
 
-    const [resizing, setResizing] = useState(false);
-    const [currentWidth, setCurrentWidth] = useState(width);
-    const startXRef = useRef<number>(0);
-    const startWidthRef = useRef<number>(0);
-
-    const currentWidthRef = useRef(width);
+    const [currentWidth, setCurrentWidth] = useState(width || 250);
+    const [currentHeight, setCurrentHeight] = useState(height || 'auto');
+    const [open, setOpen] = useState(false);
+    const [tempWidth, setTempWidth] = useState(width || 250);
+    const [tempHeight, setTempHeight] = useState(height || '');
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            setCurrentWidth(width);
-            currentWidthRef.current = width;
+            setCurrentWidth(width || 250);
+            setCurrentHeight(height || 'auto');
         }, 0);
         return () => clearTimeout(timer);
-    }, [width]);
+    }, [width, height]);
 
-    const onMouseDown = (event: React.MouseEvent) => {
-        event.preventDefault();
-        setResizing(true);
-        startXRef.current = event.clientX;
-        startWidthRef.current = currentWidth;
-
-        const onMouseMove = (moveEvent: MouseEvent) => {
-            const deltaX = moveEvent.clientX - startXRef.current;
-            const newWidth = Math.max(50, startWidthRef.current + deltaX); // Min width 50px
-            setCurrentWidth(newWidth);
-            currentWidthRef.current = newWidth; // Update ref
-        };
-
-        const onMouseUp = () => {
-            setResizing(false);
-            updateAttributes({ width: currentWidthRef.current }); // Use ref value
-
-            document.removeEventListener("mousemove", onMouseMove);
-            document.removeEventListener("mouseup", onMouseUp);
-        };
-
-        document.addEventListener("mousemove", onMouseMove);
-        document.addEventListener("mouseup", onMouseUp);
+    const handleSave = () => {
+        updateAttributes({ 
+            width: tempWidth, 
+            height: tempHeight || null 
+        });
+        setOpen(false);
     };
 
+    const handleOpen = () => {
+        setTempWidth(currentWidth);
+        setTempHeight(currentHeight === 'auto' ? '' : currentHeight);
+        setOpen(true);
+    };
 
     return (
         <NodeViewWrapper className="image-resizer" style={{ display: "inline-block", position: "relative", lineHeight: 0 }}>
@@ -53,31 +42,62 @@ export const ImageResizeComponent: React.FC<NodeViewProps> = (props) => {
                 alt={alt}
                 title={title}
                 width={currentWidth}
+                height={currentHeight === 'auto' ? undefined : currentHeight}
                 style={{
                     display: "block",
-                    maxWidth: "100%", 
-                    height: "auto",
-                    transition: resizing ? "none" : "width 0.2s ease-in-out"
+                    maxWidth: "100%",
+                    height: currentHeight === 'auto' ? 'auto' : currentHeight
                 }}
             />
 
-            {(selected || resizing) && (
-                <div
-                    className="resize-handle"
-                    onMouseDown={onMouseDown}
-                    style={{
+            {selected && (
+                <Button
+                    onClick={handleOpen}
+                    size="small"
+                    sx={{
                         position: "absolute",
-                        bottom: 0,
-                        right: 0,
-                        width: "20px",
-                        height: "20px",
-                        backgroundColor: "#3b82f6", 
-                        cursor: "nwse-resize",
-                        zIndex: 10,
-                        borderTopLeftRadius: "4px"
+                        top: 5,
+                        right: 5,
+                        minWidth: "auto",
+                        width: "30px",
+                        height: "30px",
+                        backgroundColor: "#3b82f6",
+                        color: "white",
+                        '&:hover': {
+                            backgroundColor: "#2563eb"
+                        }
                     }}
-                />
+                >
+                    <EditIcon fontSize="small" />
+                </Button>
             )}
+
+            <Dialog open={open} onClose={() => setOpen(false)}>
+                <DialogTitle>Edit Image Size</DialogTitle>
+                <DialogContent>
+                    <Box sx={{ display: 'flex', gap: 2, pt: 1 }}>
+                        <TextField
+                            label="Width (px)"
+                            type="number"
+                            value={tempWidth}
+                            onChange={(e) => setTempWidth(Number(e.target.value))}
+                            inputProps={{ min: 50, max: 1000 }}
+                        />
+                        <TextField
+                            label="Height (px)"
+                            type="number"
+                            value={tempHeight}
+                            onChange={(e) => setTempHeight(Number(e.target.value) || '')}
+                            placeholder="Auto"
+                            inputProps={{ min: 50, max: 1000 }}
+                        />
+                    </Box>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpen(false)}>Cancel</Button>
+                    <Button onClick={handleSave} variant="contained">Save</Button>
+                </DialogActions>
+            </Dialog>
         </NodeViewWrapper>
     );
 };

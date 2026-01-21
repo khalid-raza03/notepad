@@ -242,6 +242,7 @@ function NoteCard({ id, title, tags }: simplifiedNote) {
                 <Typography variant="h5" component="h2" sx={{
                     fontWeight: 600,
                     color: 'text.primary',
+                    fontSize: "calc(16px + (26 - 16) * ((100vw - 320px) / (1820 - 320)))",
                     fontStyle: 'italic',
                     transition: 'color 0.3s ease',
                     '&:hover': {
@@ -397,7 +398,7 @@ function EditTagsModal({ availableTags, handleClose, opened, updateTag, deleteTa
                                 transition: 'all 0.3s ease-in-out',
                                 '&:hover': {
                                     transform: 'rotate(90deg)',
-            
+
                                 }
                             }}
                         ><ClearOutlined sx={{ fontSize: "25px", color: "black" }} /></Button>
@@ -456,13 +457,13 @@ function EditTagsModal({ availableTags, handleClose, opened, updateTag, deleteTa
                                     </Item>
                                 </Grid>
                                 <Grid size={{ xs: 'auto' }}>
-                                    <Item sx={{ bgcolor: "#d32f2f",  borderRadius:"50%"}}>
+                                    <Item sx={{ bgcolor: "#d32f2f", borderRadius: "50%" }}>
                                         <Button
                                             onClick={() => deleteTag(tag.id)}
                                             sx={{
                                                 minWidth: "0",
                                                 transition: 'all 0.3s ease',
-                                                borderRadius:"50%",
+                                                borderRadius: "50%",
                                                 '&:hover': {
                                                     transform: 'scale(1.1) rotate(90deg)',
                                                     backgroundColor: '#d32f2f'

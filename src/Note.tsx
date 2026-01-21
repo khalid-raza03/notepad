@@ -38,11 +38,11 @@ function renderHtmlToPdf(html: string) {
             case "h3":
                 return <Text key={key} style={{ fontSize: 14, fontWeight: "bold", marginBottom: 6 }}>{children}</Text>;
 
-            case "strong":
+            
             case "b":
                 return <Text key={key} style={{ fontWeight: "bold" }}>{children}</Text>;
 
-            case "em":
+          
             case "i":
                 return <Text key={key} style={{ fontStyle: "italic" }}>{children}</Text>;
 
