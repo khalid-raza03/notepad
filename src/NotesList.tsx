@@ -242,7 +242,7 @@ function NoteCard({ id, title, tags }: simplifiedNote) {
                 <Typography variant="h5" component="h2" sx={{
                     fontWeight: 600,
                     color: 'text.primary',
-                    fontSize: "calc(16px + (26 - 16) * ((100vw - 320px) / (1820 - 320)))",
+                    fontSize: "calc(16px + (24 - 16) * ((100vw - 320px) / (1820 - 320)))",
                     fontStyle: 'italic',
                     transition: 'color 0.3s ease',
                     '&:hover': {

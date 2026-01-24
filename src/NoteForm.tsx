@@ -31,12 +31,24 @@ import TextAlign from "@tiptap/extension-text-align";
 import Color from "@tiptap/extension-color";
 import TiptapLink from "@tiptap/extension-link";
 import { ResizableImage } from "./utils/ResizableImage.ts"
+import { FontSize } from "./utils/FontSize";
 
 
-import { FormatBold, FormatColorResetTwoTone, FormatStrikethroughSharp, FormatUnderlined, Undo, Redo } from "@mui/icons-material";
+
+import { FormatBold, FormatColorResetTwoTone, FormatStrikethroughSharp, FormatUnderlined, Undo, Redo, PictureAsPdf, CodeOff, FormatSize } from "@mui/icons-material";
 import { CircleCheckBig, Code, Heading1, Heading2, Heading3, ImageUpIcon, Link2Icon, Link2Off, List, ListOrdered, } from 'lucide-react';
 import { TextStyle } from "@tiptap/extension-text-style";
+import * as pdfjsLib from 'pdfjs-dist';
+import type { TextItem, TextMarkedContent } from "pdfjs-dist/types/src/display/api";
+import pdfWorker from "pdfjs-dist/build/pdf.worker.min.js?url";
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
+
+function isTextItem(
+  item: TextItem | TextMarkedContent
+): item is TextItem {
+  return "str" in item;
+}
 
 function EditorToolbar({ editor }: { editor: Editor | null }) {
   const colorInputRef = useRef<HTMLInputElement>(null);
@@ -55,6 +67,9 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
 
 
   if (!editor) return null;
+
+  const sizeAttr = editor.getAttributes("textStyle").fontSize;
+  const fontSize = sizeAttr ? parseInt(sizeAttr) : "";
 
   const handleMenuOpen =
     (menu: OpenMenu) => (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -89,6 +104,52 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
 
   const updateImageSize = (width: number) => {
     editor?.chain().focus().updateAttributes("image", { width }).run();
+  };
+
+
+  const addPdfFromDevice = () => {
+    if (!editor) return;
+
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/pdf";
+
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+        let text = "";
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+
+          const pageText = textContent.items
+            .filter(isTextItem)
+            .map(item => item.str)
+            .join(" ");
+
+          text += pageText + "\n\n";
+        }
+
+        const html = text
+          .split("\n\n")
+          .filter(p => p.trim())
+          .map(p => `<p>${p.trim()}</p>`)
+          .join("");
+
+        editor.chain().focus().setContent(html).run();
+      } catch (err) {
+        console.error("PDF parse error:", err);
+        alert("Failed to read PDF");
+      }
+    };
+
+    input.click();
   };
 
 
@@ -366,6 +427,14 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
       <Button
         size="small"
         variant="outlined"
+        onClick={addPdfFromDevice}
+      >
+        <PictureAsPdf />
+      </Button>
+
+      <Button
+        size="small"
+        variant="outlined"
         onClick={addImageFromDevice}
       >
         <ImageUpIcon />
@@ -399,6 +468,29 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
       >
         <Code />
       </Button>
+
+        <Box display={"flex"} alignItems={"center"} gap={1}>
+          <FormatSize />
+      <TextField
+        type="number"
+        size="small"
+        inputProps={{ min: 10, step: 1 }}
+        value={fontSize}
+        onChange={(e) => {
+          const value = e.target.value;
+          if (value) {
+            editor.chain().setFontSize(String(value)).run();
+          } else {
+            editor.chain().unsetFontSize().run();
+          }
+        }}
+        sx={{ width: 90 }}
+      />
+        </Box>
+  
+
+
+
 
 
 
@@ -444,11 +536,13 @@ export function NoteForm({
   const [targetTags, setTargetTags] = useState<Tag[]>(tags);
   const navigate = useNavigate();
 
+
   const editor = useEditor({
     extensions: [
       StarterKit,
       Underline,
       TaskList,
+      FontSize,
       TextStyle,
       Color,
       TiptapLink.configure({
@@ -481,6 +575,7 @@ export function NoteForm({
 
 
 
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
@@ -492,6 +587,17 @@ export function NoteForm({
     navigate(-1);
   }
 
+  const rowColSx = {
+    flexDirection: {
+      xs: "column",
+      sm: "row",
+    },
+    alignItems: {
+      xs: "flex-start",
+      sm: "center",
+    },
+    justifyContent: "space-between",
+  };
 
 
 
@@ -693,8 +799,6 @@ export function NoteForm({
           </Grid>
 
           <Stack
-            direction="row"
-            justifyContent="space-between"
             spacing={2}
             sx={{
               width: "100%",
@@ -709,77 +813,82 @@ export function NoteForm({
           >
 
 
-            <Box display={"flex"} gap={"10px"}>
-              <Button
-                type="button"
-                size="small"
-                variant="outlined"
-                onClick={() => editor?.chain().focus().undo().run()}
-                disabled={!editor?.can().undo()}
-                sx={{
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
-                    transform: 'scale(1.05)',
-                    boxShadow: '0 2px 8px #00000026'
-                  }
-                }}
-              >
-                <Undo />
-              </Button>
+            <Box display={"flex"} columnGap={"10px"} rowGap={"40px"} sx={rowColSx}>
 
-              <Button
-                type="button"
-                size="small"
-                variant="outlined"
-                onClick={() => editor?.chain().focus().redo().run()}
-                disabled={!editor?.can().redo()}
-                sx={{
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
-                    transform: 'scale(1.05)',
-                    boxShadow: '0 2px 8px #00000026'
-                  }
-                }}
-              >
-                <Redo />
-              </Button>
+              <Box display={"flex"} gap={"10px"}>
+                <Button
+                  type="button"
+                  size="small"
+                  variant="outlined"
+                  onClick={() => editor?.chain().focus().undo().run()}
+                  disabled={!editor?.can().undo()}
+                  sx={{
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      transform: 'scale(1.05)',
+                      boxShadow: '0 2px 8px #00000026'
+                    }
+                  }}
+                >
+                  <Undo />
+                </Button>
+
+                <Button
+                  type="button"
+                  size="small"
+                  variant="outlined"
+                  onClick={() => editor?.chain().focus().redo().run()}
+                  disabled={!editor?.can().redo()}
+                  sx={{
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      transform: 'scale(1.05)',
+                      boxShadow: '0 2px 8px #00000026'
+                    }
+                  }}
+                >
+                  <Redo />
+                </Button>
+              </Box>
+
+
+              <Box display={"flex"} gap={"10px"}>
+                <Button
+
+                  type="submit"
+                  variant="contained"
+                  endIcon={<SendIcon />}
+                  sx={{
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      transform: 'scale(1.05) translateY(-2px)',
+                      boxShadow: '0 8px 20px rgba(0,0,0,0.3)'
+                    }
+                  }}
+                >
+                  SUBMIT
+                </Button>
+
+                <Button
+                  component={Link}
+                  to="/notes"
+                  variant="outlined"
+                  startIcon={<CloseIcon />}
+                  sx={{
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      transform: 'scale(1.05) translateY(-2px)',
+                      boxShadow: '0 6px 16px rgba(0,0,0,0.2)',
+                      backgroundColor: 'rgba(255,0,0,0.05)'
+                    }
+                  }}
+                >
+                  Cancel
+                </Button>
+              </Box>
             </Box>
 
 
-            <Box display={"flex"} gap={"10px"}>
-              <Button
-
-                type="submit"
-                variant="contained"
-                endIcon={<SendIcon />}
-                sx={{
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
-                    transform: 'scale(1.05) translateY(-2px)',
-                    boxShadow: '0 8px 20px rgba(0,0,0,0.3)'
-                  }
-                }}
-              >
-                SUBMIT
-              </Button>
-
-              <Button
-                component={Link}
-                to="/notes"
-                variant="outlined"
-                startIcon={<CloseIcon />}
-                sx={{
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
-                    transform: 'scale(1.05) translateY(-2px)',
-                    boxShadow: '0 6px 16px rgba(0,0,0,0.2)',
-                    backgroundColor: 'rgba(255,0,0,0.05)'
-                  }
-                }}
-              >
-                Cancel
-              </Button>
-            </Box>
 
           </Stack>
         </Grid>
