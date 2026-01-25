@@ -38,11 +38,11 @@ function renderHtmlToPdf(html: string) {
             case "h3":
                 return <Text key={key} style={{ fontSize: 14, fontWeight: "bold", marginBottom: 6 }}>{children}</Text>;
 
-            
+
             case "b":
                 return <Text key={key} style={{ fontWeight: "bold" }}>{children}</Text>;
 
-          
+
             case "i":
                 return <Text key={key} style={{ fontStyle: "italic" }}>{children}</Text>;
 
@@ -111,7 +111,9 @@ function renderHtmlToPdf(html: string) {
 export function Note({ deleteNote }: NoteProps) {
     const note = useNote();
     const navigate = useNavigate()
-    const [bgColor, setBgColor] = useState("#ffffff");
+    const themeSx = (note as any).theme?.containerSx ?? {};
+    const initialBg = (themeSx && (themeSx.backgroundColor || themeSx.background)) || "#ffffff";
+    const [bgColor, setBgColor] = useState(initialBg);
     const [fontFamily, setFontFamily] = useState("sans-serif");
 
     const styles = StyleSheet.create({
@@ -197,13 +199,14 @@ export function Note({ deleteNote }: NoteProps) {
                         md: 4,
                     },
                     borderRadius: 3,
-                    backgroundColor: bgColor,
                     fontFamily: fontFamily,
                     transition: 'all 0.3s ease',
                     boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
                     "& *": {
                         fontFamily: "inherit !important",
-                    }
+                    },
+                    ...themeSx,
+                    backgroundColor: bgColor,
                 }}
             >
                 {/* Header section */}
@@ -301,7 +304,7 @@ export function Note({ deleteNote }: NoteProps) {
                                 variant="outlined"
                                 onClick={() => {
                                     deleteNote(note.id);
-                                    navigate("/");
+                                    navigate("/notes");
                                 }}
                                 sx={{
                                     transition: 'all 0.3s ease',
@@ -333,7 +336,6 @@ export function Note({ deleteNote }: NoteProps) {
                     </Grid>
 
                     <Stack direction="row" sx={{ gap: "10px" }} flexWrap="wrap" alignItems="center" className="pdf-exclude">
-                        {/* Background color */}
                         <Box sx={{
                             border: '2px solid #ddd',
                             borderRadius: 1,
@@ -438,6 +440,7 @@ export function Note({ deleteNote }: NoteProps) {
                     sx={{
                         textDecoration: 'none',
                         backgroundColor: 'transparent',
+                        ...((note as any).theme?.editorSx ?? {}),
                         borderRadius: 3,
                         textWrap: 'break-word',
                         boxShadow: 5,

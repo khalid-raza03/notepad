@@ -9,7 +9,10 @@ import { useLocalStorage } from "usehooks-ts";
 import { useMemo, lazy, Suspense } from 'react';
 import { v4 as uuidV4 } from 'uuid';
 import { Note } from './Note';
+import type { NoteTheme } from './Themes';
+import { getThemeById } from './Themes';
 import { Box, CircularProgress } from '@mui/material';
+import ChooseTheme from './NotesTheme';
 
 const NewNote = lazy(() => import('./NewNote'));
 const NotesList = lazy(() => import('./NotesList'));
@@ -24,7 +27,8 @@ export type Tag = {
 export type NotesData = {
   title: string;
   description: string;
-  tags: Tag[];
+  tags: Tag[]
+  themeId?: string
 }
 
 export type NoteProps = {
@@ -39,6 +43,8 @@ export type RawNoteData = {
   title: string;
   description: string;
   tagIds: string[];
+  themeId?: string;
+  theme?: NoteTheme;
 }
 
 
@@ -59,15 +65,17 @@ function App() {
 
   function onCreateNote({ tags, ...data }: NotesData) {
     setNotes(prevNotes => {
-      return [...prevNotes, { ...data, id: uuidV4(), tagIds: tags.map(tag => tag.id) }]
+      const themeSnapshot = getThemeById(data.themeId || "")
+      return [...prevNotes, { ...data, id: uuidV4(), tagIds: tags.map(tag => tag.id), themeId: data.themeId, theme: themeSnapshot }]
     })
   }
 
   function onUpdateNotes(id: string, { tags, ...data }: NotesData) {
     setNotes(prevNotes => {
+      const themeSnapshot = getThemeById(data.themeId || "")
       return prevNotes.map(note => {
         if (note.id === id) {
-          return { ...note, ...data, tagIds: tags.map(tag => tag.id) }
+          return { ...note, ...data, tagIds: tags.map(tag => tag.id), themeId: data.themeId, theme: themeSnapshot }
         } else {
           return note
         }
@@ -111,6 +119,7 @@ function App() {
       backgroundImage: `url(${import.meta.env.BASE_URL}background.webp)`,
       backgroundRepeat: "repeat",
       backgroundSize: "auto",
+      backgroundAttachment: "scroll",
       backgroundPosition: "center center",
       padding: ' 0'
     }}>
@@ -125,6 +134,8 @@ function App() {
             <Route path='/notes' element={<NotesList notes={notesWithTags} availableTags={tags} updateTag={updateTag} deleteTag={deleteTag} />}></Route>
             <Route path='/new' element={<NewNote onSubmit={onCreateNote} onAddTag={addTag} availableTags={tags}
             />} />
+            <Route path="/themes" element={<ChooseTheme />} />
+
 
             <Route path='/:id' element={<NoteLayout notes={notesWithTags} />}>
               <Route index element={<Note deleteNote={deleteNote} />} />

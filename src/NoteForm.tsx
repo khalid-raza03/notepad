@@ -32,6 +32,8 @@ import Color from "@tiptap/extension-color";
 import TiptapLink from "@tiptap/extension-link";
 import { ResizableImage } from "./utils/ResizableImage.ts"
 import { FontSize } from "./utils/FontSize";
+import { useLocation } from "react-router-dom";
+import { getThemeById, getStoredThemes } from "./Themes";
 
 
 
@@ -375,6 +377,7 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
         <Button
           size="small"
           variant="outlined"
+          sx={{ backgroundColor: "white" }}
           onClick={() => colorInputRef.current?.click()}
         >
           <FormatColorTextTwoToneIcon />
@@ -401,6 +404,7 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
       <Button
         size="small"
         variant="outlined"
+        sx={{ backgroundColor: "white" }}
         onClick={() => editor.chain().focus().unsetColor().run()}>
         <FormatColorResetTwoTone />
       </Button>
@@ -417,6 +421,7 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
 
       <Button
         size="small"
+        sx={{ backgroundColor: "white" }}
         variant="outlined"
         onClick={() => editor.chain().focus().unsetLink().run()}
       >
@@ -427,6 +432,7 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
       <Button
         size="small"
         variant="outlined"
+        sx={{ backgroundColor: "white" }}
         onClick={addPdfFromDevice}
       >
         <PictureAsPdf />
@@ -436,6 +442,7 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
         size="small"
         variant="outlined"
         onClick={addImageFromDevice}
+        sx={{ backgroundColor: "white" }}
       >
         <ImageUpIcon />
       </Button>
@@ -469,25 +476,25 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
         <Code />
       </Button>
 
-        <Box display={"flex"} alignItems={"center"} gap={1}>
-          <FormatSize />
-      <TextField
-        type="number"
-        size="small"
-        inputProps={{ min: 10, step: 1 }}
-        value={fontSize}
-        onChange={(e) => {
-          const value = e.target.value;
-          if (value) {
-            editor.chain().setFontSize(String(value)).run();
-          } else {
-            editor.chain().unsetFontSize().run();
-          }
-        }}
-        sx={{ width: 90 }}
-      />
-        </Box>
-  
+      <Box display={"flex"} alignItems={"center"} gap={1}>
+        <FormatSize />
+        <TextField
+          type="number"
+          size="small"
+          inputProps={{ min: 10, step: 1 }}
+          value={fontSize}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value) {
+              editor.chain().setFontSize(String(value)).run();
+            } else {
+              editor.chain().unsetFontSize().run();
+            }
+          }}
+          sx={{ width: 90 }}
+        />
+      </Box>
+
 
 
 
@@ -530,12 +537,17 @@ export function NoteForm({
   title = "",
   description = "",
   tags = [],
+  themeId: propThemeId,
 }: NoteFormProps) {
   const [, forceUpdate] = useState({});
   const notesTitleRef = useRef<HTMLInputElement>(null);
   const [targetTags, setTargetTags] = useState<Tag[]>(tags);
   const navigate = useNavigate();
+  const location = useLocation();
+  // allow themeId to be passed as a prop (used by EditNotes) or from navigation state
+  const themeId = propThemeId ?? location.state?.themeId ?? "glass";
 
+  const selectedTheme = getThemeById(themeId) ?? getStoredThemes()[0];
 
   const editor = useEditor({
     extensions: [
@@ -574,8 +586,6 @@ export function NoteForm({
 
 
 
-
-
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
@@ -583,6 +593,7 @@ export function NoteForm({
       title: notesTitleRef.current!.value,
       description: editor?.getHTML() || "",
       tags: targetTags,
+      themeId,
     });
     navigate(-1);
   }
@@ -606,21 +617,17 @@ export function NoteForm({
       component="form"
       onSubmit={handleSubmit}
       sx={{
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
-        background: "rgba(255, 255, 255, 0.15)",
-        border: "1px solid rgba(255, 255, 255, 0.3)",
+        ...selectedTheme.containerSx,
         borderRadius: 3,
         boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
-        maxWidth: '1200px', margin: '0 auto',
-        py: 8,
-        px: {
-          xs: 2,
-          md: 4,
-        },
+        maxWidth: "1200px",
+        mx: "auto",
         mt: 5,
+        py: 8,
+        px: { xs: 2, md: 4 },
       }}
     >
+
       <Stack spacing={4}>
         <Grid container spacing={4}>
           <Grid size={{ xs: 12, md: 6 }} sx={{
@@ -776,6 +783,7 @@ export function NoteForm({
                   boxShadow: '0 6px 20px rgba(0,0,0,0.15)'
                 },
                 "& .ProseMirror": {
+                  ...selectedTheme.editorSx,
                   maxHeight: "50vh",
                   overflowY: "auto",
                   padding: "30px",
@@ -872,10 +880,11 @@ export function NoteForm({
                 <Button
                   component={Link}
                   to="/notes"
-                  variant="outlined"
                   startIcon={<CloseIcon />}
                   sx={{
                     transition: 'all 0.3s ease',
+                    backgroundColor: 'rgb(241, 233, 233)',
+                    border: "1px solid #1976d2",
                     '&:hover': {
                       transform: 'scale(1.05) translateY(-2px)',
                       boxShadow: '0 6px 16px rgba(0,0,0,0.2)',

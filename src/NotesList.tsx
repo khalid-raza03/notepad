@@ -5,6 +5,7 @@ import type { Tag, NoteProps } from "./App";
 import { Link } from "react-router-dom";
 import { styled } from '@mui/material/styles';
 import { ClearOutlined } from '@mui/icons-material';
+import { Paintbrush } from "lucide-react";
 
 
 
@@ -34,6 +35,10 @@ export default function NotesList({ availableTags, notes, updateTag, deleteTag }
             backgroundRepeat: "repeat",
             backgroundSize: "cover",
             minHeight: '100vh',
+            paddingTop: {
+                xs: '30px',
+                md: '60px'
+            },
             animation: 'fadeIn 0.5s ease-in',
             '@keyframes fadeIn': {
                 from: { opacity: 0 },
@@ -85,7 +90,7 @@ export default function NotesList({ availableTags, notes, updateTag, deleteTag }
                             }}
                         >Your Notes List</Typography>
 
-                        <Stack direction="row" spacing={2}>
+                        <Stack direction="row" flexWrap={'wrap'} gap={'10px'} alignItems={'flex-start'} >
                             <Button
                                 component={Link}
                                 to="/new"
@@ -101,20 +106,48 @@ export default function NotesList({ availableTags, notes, updateTag, deleteTag }
                                         transform: 'scale(1.08)',
                                         boxShadow: '0 6px 20px rgba(0,0,0,0.3)'
                                     },
-                                    transition: 'all 0.3s ease'
+                                    transition: 'all 0.3s ease',
+                                    fontSize: {
+                                        xs: "12px",
+                                        lg: "16px"
+                                    }
                                 }}
                             >Create</Button>
                             <Button
                                 variant="outlined"
                                 onClick={() => setOpen(true)}
                                 sx={{
+
+                                    transition: 'all 0.3s ease-in-out',
+                                    fontSize: { xs: '12px', lg: '16px' },
+                                    '&:hover': {
+                                        transform: 'scale(1.05)',
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                                    },
+                                }}
+                            >
+                                Edit Tags
+                            </Button>
+
+
+                            <Button
+                                component={Link}
+                                to="/themes"
+                                variant="contained"
+                                sx={{
                                     '&:hover': {
                                         transform: 'scale(1.05)',
                                         boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
                                     },
-                                    transition: 'all 0.3s ease'
+                                    transition: 'all 0.3s ease-in-out',
+                                    backgroundColor: '#ba127d',
+                                    fontSize: {
+                                        xs: "12px",
+                                        lg: "16px"
+                                    },
+
                                 }}
-                            >Edit Tags</Button>
+                            ><span style={{ margin: "0 6px" }}>Choose a Theme</span>  <Paintbrush /> </Button>
                         </Stack>
                     </Stack>
 
@@ -196,7 +229,7 @@ export default function NotesList({ availableTags, notes, updateTag, deleteTag }
                                 }
                             }}
                         >
-                            <NoteCard id={note.id} title={note.title} tags={note.tags} />
+                            <NoteCard id={note.id} title={note.title} tags={note.tags} theme={((note as any).theme)} />
                         </Grid>
                     ))}
                 </Grid>
@@ -214,28 +247,33 @@ type simplifiedNote = {
 }
 
 
-function NoteCard({ id, title, tags }: simplifiedNote) {
+function NoteCard({ id, title, tags, theme }: simplifiedNote & { theme?: any }) {
+    const baseSx: any = {
+        textDecoration: 'none',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderRadius: 3,
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        '&:hover': {
+            transform: 'translateY(-8px) scale(1.02)',
+            boxShadow: '0 12px 24px rgba(0,0,0,0.15)',
+            border: '1px solid rgba(102, 126, 234, 0.3)',
+        }
+    };
+
+    const themeSx = theme?.containerSx ?? { background: '#ffffff5a' };
+
     return (
         <Card
             component={Link}
             to={`/${id}`}
             sx={{
-                textDecoration: 'none',
-                background: '#ffffff5a',
-                backdropFilter: 'blur(16px)',
-                WebkitBackdropFilter: 'blur(16px)',
-                borderRadius: 3,
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                '&:hover': {
-                    transform: 'translateY(-8px) scale(1.02)',
-                    boxShadow: '0 12px 24px rgba(0,0,0,0.15)',
-                    background: '#ffffffaa',
-                    border: '1px solid rgba(102, 126, 234, 0.3)',
-                }
+                ...baseSx,
+                ...themeSx,
             }}
         >
             <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>

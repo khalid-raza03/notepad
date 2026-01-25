@@ -53,7 +53,7 @@ const EditNotes = ({ onSubmit, onAddTag, availableTags }: EditNoteProps) => {
                     }
                 }
             }}> Edit your note</Typography>
-            <NoteForm title={note.title} description={note.description} tags={note.tags} onSubmit={data => onSubmit(note.id, data)} onAddTag={onAddTag} availableTags={availableTags} />
+            <NoteForm title={note.title} description={note.description} tags={note.tags} themeId={note.themeId} onSubmit={data => onSubmit(note.id, data)} onAddTag={onAddTag} availableTags={availableTags} />
         </Box>
 
     )
