@@ -30,6 +30,7 @@ import TaskItem from "@tiptap/extension-task-item";
 import TextAlign from "@tiptap/extension-text-align";
 import Color from "@tiptap/extension-color";
 import TiptapLink from "@tiptap/extension-link";
+import Placeholder from "@tiptap/extension-placeholder";
 import { ResizableImage } from "./utils/ResizableImage.ts"
 import { FontSize } from "./utils/FontSize";
 import { useLocation } from "react-router-dom";
@@ -37,14 +38,34 @@ import { getThemeById, getStoredThemes } from "./Themes";
 
 
 
-import { FormatBold, FormatColorResetTwoTone, FormatStrikethroughSharp, FormatUnderlined, Undo, Redo, PictureAsPdf, CodeOff, FormatSize } from "@mui/icons-material";
+import { FormatBold, FormatColorResetTwoTone, FormatStrikethroughSharp, FormatUnderlined, Undo, Redo, PictureAsPdf, FormatSize } from "@mui/icons-material";
 import { CircleCheckBig, Code, Heading1, Heading2, Heading3, ImageUpIcon, Link2Icon, Link2Off, List, ListOrdered, } from 'lucide-react';
 import { TextStyle } from "@tiptap/extension-text-style";
 import * as pdfjsLib from 'pdfjs-dist';
 import type { TextItem, TextMarkedContent } from "pdfjs-dist/types/src/display/api";
-import pdfWorker from "pdfjs-dist/build/pdf.worker.min.js?url";
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
+if (typeof window !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+}
+
+// Scrollbar styles that can be used across all components in this file
+const scrollbarStyles = {
+  "&::-webkit-scrollbar": {
+    height: "4px",
+    width: "8px",
+  },
+  "&::-webkit-scrollbar-track": {
+    background: "rgba(255, 255, 255, 0.1)",
+    borderRadius: "12px",
+  },
+  "&::-webkit-scrollbar-thumb": {
+    background: "rgba(251, 205, 108, 0.7)",
+    borderRadius: "12px",
+  },
+  "&::-webkit-scrollbar-thumb:hover": {
+    background: "rgba(255, 255, 255, 0.5)",
+  },
+};
 
 function isTextItem(
   item: TextItem | TextMarkedContent
@@ -68,7 +89,7 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
   });
 
 
-  if (!editor) return null;
+  if (!editor) return;
 
   const sizeAttr = editor.getAttributes("textStyle").fontSize;
   const fontSize = sizeAttr ? parseInt(sizeAttr) : "";
@@ -191,6 +212,7 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
     backgroundColor: isActive ? "skyblue" : "transparent",
     color: isActive ? "black" : "inherit",
     transition: 'all 0.3s ease',
+    fontSize: '14px',
     "&:hover": {
       backgroundColor: isActive ? "skyblue" : "#2667c91a",
       transform: 'scale(1.05)',
@@ -198,8 +220,15 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
     }
   });
 
+
+
   return (
-    <Stack direction="row" sx={{ gap: '10px', padding: "10px" }} flexWrap="wrap" mb={2}>
+    <Stack direction="row" sx={{
+      gap: '10px', padding: "10px", maxWidth: "1200px", flexWrap: { lg: "wrap", sm: "nowrap" }, overflowX: { lg: "visible", xs: "auto" }, "& .MuiInputBase-input": {
+
+        ...scrollbarStyles,
+      },
+    }} mb={2}>
 
 
       <Button
@@ -460,10 +489,6 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
         </Box>
       )}
 
-
-
-
-
       <Button
         size="small"
         variant="outlined"
@@ -477,7 +502,7 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
       </Button>
 
       <Box display={"flex"} alignItems={"center"} gap={1}>
-        <FormatSize />
+        <FormatSize titleAccess="select your text and set font-size" />
         <TextField
           type="number"
           size="small"
@@ -491,15 +516,9 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
               editor.chain().unsetFontSize().run();
             }
           }}
-          sx={{ width: 90 }}
+          sx={{ width: 120 }}
         />
       </Box>
-
-
-
-
-
-
 
     </Stack>
   );
@@ -507,22 +526,7 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
 
 
 
-const scrollbarStyles = {
-  "&::-webkit-scrollbar": {
-    height: "8px",
-  },
-  "&::-webkit-scrollbar-track": {
-    background: "rgba(255, 255, 255, 0.1)",
-    borderRadius: "4px",
-  },
-  "&::-webkit-scrollbar-thumb": {
-    background: "rgba(255, 255, 255, 0.3)",
-    borderRadius: "4px",
-  },
-  "&::-webkit-scrollbar-thumb:hover": {
-    background: "rgba(255, 255, 255, 0.5)",
-  },
-};
+
 
 type NoteFormProps = {
   onSubmit: (data: NotesData) => void;
@@ -544,7 +548,7 @@ export function NoteForm({
   const [targetTags, setTargetTags] = useState<Tag[]>(tags);
   const navigate = useNavigate();
   const location = useLocation();
-  // allow themeId to be passed as a prop (used by EditNotes) or from navigation state
+
   const themeId = propThemeId ?? location.state?.themeId ?? "glass";
 
   const selectedTheme = getThemeById(themeId) ?? getStoredThemes()[0];
@@ -566,19 +570,20 @@ export function NoteForm({
         inline: false,
         allowBase64: true,
       }),
-
       TextAlign.configure({
         types: ["heading", "paragraph"],
       }),
       TaskItem.configure({
         nested: true,
       }),
+      Placeholder.configure({
+        placeholder: "write your notes here...",
+      }),
       Markdown.configure({
         html: true,
         transformPastedText: false,
         transformCopiedText: false,
       }),
-
     ],
     content: description,
     onUpdate: () => forceUpdate({}),
@@ -621,15 +626,16 @@ export function NoteForm({
         borderRadius: 3,
         boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
         maxWidth: "1200px",
+        position: { xs: "relative", sm: "static" },
         mx: "auto",
-        mt: 5,
-        py: 8,
+        mt: { xs: 2, md: 4 },
+        py: { xs: 3, lg: 6 },
         px: { xs: 2, md: 4 },
       }}
     >
 
       <Stack spacing={4}>
-        <Grid container spacing={4}>
+        <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 6 }} sx={{
             animation: 'slideInLeft 0.5s ease-out',
             animationDelay: '0.1s',
@@ -665,7 +671,7 @@ export function NoteForm({
                   }
                 },
                 "& .MuiInputBase-input": {
-                  overflowX: "auto",
+                  overflow: "auto",
                   ...scrollbarStyles,
                 },
               }}
@@ -794,7 +800,7 @@ export function NoteForm({
                   outline: "none",
                   transition: 'all 0.3s ease',
                   "&:focus": {
-                    outline: "2px solid #1976d2",
+                    outline: "2px solid #0b0c0c",
                     boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)'
                   },
                   ...scrollbarStyles,
@@ -802,7 +808,7 @@ export function NoteForm({
               }}
             >
               <EditorToolbar editor={editor} />
-              <EditorContent editor={editor} />
+              <EditorContent editor={editor} color="black" />
             </Box>
           </Grid>
 
@@ -821,9 +827,9 @@ export function NoteForm({
           >
 
 
-            <Box display={"flex"} columnGap={"10px"} rowGap={"40px"} sx={rowColSx}>
+            <Box display={"flex"}  columnGap={"10px"} rowGap={"40px"} sx={rowColSx}>
 
-              <Box display={"flex"} gap={"10px"}>
+              <Box display={"flex"} gap={"10px"} sx={{margin:{xs:"16px 0", sm:"0"}}} >
                 <Button
                   type="button"
                   size="small"
@@ -860,14 +866,15 @@ export function NoteForm({
               </Box>
 
 
-              <Box display={"flex"} gap={"10px"}>
+              <Box display={"flex"} gap={"5px"} sx={{ position: { xs: "absolute", sm: "static" }, bottom: "0%", left: "0%", width: { xs: "100%", sm: "auto" }, }}>
                 <Button
 
                   type="submit"
                   variant="contained"
                   endIcon={<SendIcon />}
                   sx={{
-                    transition: 'all 0.3s ease',
+                    transition: 'all 0.3s ease-in',
+                    width: { xs: "50%", sm: "auto" },
                     '&:hover': {
                       transform: 'scale(1.05) translateY(-2px)',
                       boxShadow: '0 8px 20px rgba(0,0,0,0.3)'
@@ -883,6 +890,7 @@ export function NoteForm({
                   startIcon={<CloseIcon />}
                   sx={{
                     transition: 'all 0.3s ease',
+                    width: { xs: "50%", sm: "auto" },
                     backgroundColor: 'rgb(241, 233, 233)',
                     border: "1px solid #1976d2",
                     '&:hover': {

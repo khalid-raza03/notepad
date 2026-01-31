@@ -5,7 +5,7 @@ import type { Tag, NoteProps } from "./App";
 import { Link } from "react-router-dom";
 import { styled } from '@mui/material/styles';
 import { ClearOutlined } from '@mui/icons-material';
-import { Paintbrush } from "lucide-react";
+import { Paintbrush, PlusCircle, TagIcon } from "lucide-react";
 
 
 
@@ -91,60 +91,78 @@ export default function NotesList({ availableTags, notes, updateTag, deleteTag }
                         >Your Notes List</Typography>
 
                         <Stack direction="row" flexWrap={'wrap'} gap={'10px'} alignItems={'flex-start'} >
-                            <Button
-                                component={Link}
-                                to="/new"
-                                variant="contained"
-                                sx={{
-                                    animation: 'pulse 2s ease-in-out infinite',
-                                    '@keyframes pulse': {
-                                        '0%, 100%': { transform: 'scale(1)' },
-                                        '50%': { transform: 'scale(1.05)' }
-                                    },
-                                    '&:hover': {
-                                        animation: 'none',
-                                        transform: 'scale(1.08)',
-                                        boxShadow: '0 6px 20px rgba(0,0,0,0.3)'
-                                    },
-                                    transition: 'all 0.3s ease',
-                                    fontSize: {
-                                        xs: "12px",
-                                        lg: "16px"
-                                    }
-                                }}
-                            >Create</Button>
-                            <Button
-                                variant="outlined"
-                                onClick={() => setOpen(true)}
-                                sx={{
 
-                                    transition: 'all 0.3s ease-in-out',
-                                    fontSize: { xs: '12px', lg: '16px' },
-                                    '&:hover': {
-                                        transform: 'scale(1.05)',
-                                        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-                                    },
-                                }}
-                            >
-                                Edit Tags
-                            </Button>
+                            <Box zIndex={"999"} sx={{ display: "flex", gap:{xs:"0px", sm:"10px"}, position: { xs: "fixed", sm: "static" }, backgroundColor:{xs:"white", sm:"inherit"}, bottom: "-5px", left: "0%", width: { xs: "100%", sm: "auto" }, }}>
+                                <Button
+                                    component={Link}
+                                    to="/new"
+                                    variant="contained"
+                                    sx={{
+
+                                        '&:hover': {
+                                            animation: 'none',
+                                            transform: 'scale(1.08)',
+                                            boxShadow: '0 6px 20px rgba(0,0,0,0.3)'
+                                        },
+                                        transition: 'all 0.3s ease',
+                                        fontSize: {
+                                            xs: "12px",
+                                            lg: "16px"
+                                        },
+                                        paddingY: { xs: "20px", sm: "12px" },
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        borderRadius:{xs:"0px", sm:"'8px'"} ,
+                                        gap: '6px',
+                                        width: { xs: "50%", sm: "auto" },
+                                    }}
+                                >Create <PlusCircle /></Button>
+                                <Button
+                                    variant="outlined"
+                                    onClick={() => setOpen(true)}
+                                    sx={{
+
+                                        transition: 'all 0.3s ease-in-out',
+                                        fontSize: { xs: '12px', lg: '16px' },
+                                        '&:hover': {
+                                            transform: 'scale(1.05)',
+                                            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                                        },
+                                        paddingY: { xs: "20px", sm: "12px" },
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                                                               borderRadius:{xs:"0px", sm:"'8px'"} ,
+                                        width: { xs: "50%", sm: "auto" },
+                                    }}
+                                >
+                                    <TagIcon />  Edit Tags
+                                </Button>
+                            </Box>
+
 
 
                             <Button
                                 component={Link}
                                 to="/themes"
                                 variant="contained"
+                               
                                 sx={{
                                     '&:hover': {
                                         transform: 'scale(1.05)',
                                         boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
                                     },
+                                                                           borderRadius:{xs:"0px", sm:"'8px'"} ,
                                     transition: 'all 0.3s ease-in-out',
                                     backgroundColor: '#ba127d',
                                     fontSize: {
                                         xs: "12px",
                                         lg: "16px"
                                     },
+
+                                    paddingY: { xs: "20px", sm: "12px" },
+                                    position: { xs: "fixed", sm: "static" }, bottom: "62px", left: "0%", width: { xs: "100%", sm: "auto" },
+                                 zIndex: "999",
 
                                 }}
                             ><span style={{ margin: "0 6px" }}>Choose a Theme</span>  <Paintbrush /> </Button>

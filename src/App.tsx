@@ -118,8 +118,8 @@ function App() {
       width: '100%',
       backgroundImage: `url(${import.meta.env.BASE_URL}background.webp)`,
       backgroundRepeat: "repeat",
-      backgroundSize: "auto",
-      backgroundAttachment: "scroll",
+      backgroundSize: "cover",
+      backgroundAttachment: "fixed",
       backgroundPosition: "center center",
       padding: ' 0'
     }}>

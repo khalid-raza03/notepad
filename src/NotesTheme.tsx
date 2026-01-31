@@ -3,7 +3,9 @@ import { getStoredThemes, addTheme, deleteTheme, DEFAULT_NOTE_THEMES } from "./T
 import { useNavigate } from "react-router-dom";
 import { useState, useRef } from "react";
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
-import { ArrowLeft, PlusIcon, Trash2 } from "lucide-react";
+import { ArrowLeft, PaintBucketIcon, PencilIcon, PlusIcon, Trash2 } from "lucide-react";
+import "./App.css";
+
 
 export default function ChooseTheme() {
     const navigate = useNavigate();
@@ -63,10 +65,16 @@ export default function ChooseTheme() {
     };
 
     return (
-        <Box sx={{ maxWidth: 1000, mx: "auto", pt: 6 }}>
+        <Box sx={{ maxWidth: 1000, mx: "auto", pt: 6, position: "relative" }}>
 
-            <Button variant="contained" sx={{ mb: 4, position:"fixed", left:"5%", top:"5%"}} onClick={() => navigate(-1)}><ArrowLeft size={"16px"} /> Back to Notes</Button>
-            <Typography variant="h4" mb={4} textAlign="center" fontFamily={'cursive'}>
+            <Button variant="contained" sx={{ mb: 4, position: "absolute", left: "5%", top: "5%" }} onClick={() => navigate(-1)}><ArrowLeft size={"16px"} /> Back to Notes</Button>
+            <Typography variant="h2" my={4} textAlign="center" fontWeight={"bold"} fontFamily={'cursive'} sx={{
+                fontSize: {
+                    xs: "20px",
+                    md: "28px",
+                    xl: "34px",
+                }
+            }} >
                 Choose a Note Theme
             </Typography>
 
@@ -136,41 +144,53 @@ export default function ChooseTheme() {
                 </Grid>
             </Grid>
 
-            <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth >
-                <DialogTitle sx={{ backgroundColor: "#55048baf" }}>Create Custom Theme</DialogTitle>
-                <DialogContent sx={{ backgroundColor: "#be8fde", padding: "40px 20px" }}>
-                    <Stack spacing={2} mt={1}>
+            <Dialog open={open} onClose={handleClose} maxWidth="md" PaperProps={{
+                sx: {
+                    backgroundColor: "#ffffff54",
+                    backdropFilter: "blur(10px)",
+                    boxShadow: "none",
+                    margin: 0,
+                    width: "calc(100% - 4px)"
+
+                },
+            }} className="glass-card" fullWidth >
+                <DialogTitle color="white">Create Custom Theme</DialogTitle>
+                <DialogContent >
+                    <Stack spacing={4} mt={1} >
                         <TextField label="Theme name" value={name} onChange={(e) => setName(e.target.value)} fullWidth />
 
                         <Stack direction="row" spacing={2} alignItems="center">
-                            <TextField type="color" label="Text color" value={textColor} onChange={(e) => setTextColor(e.target.value)} sx={{ width: 110 }} />
+                            <TextField type="color" label="Text color" value={textColor} onChange={(e) => setTextColor(e.target.value)} sx={{ width: 120, height: 40 }} />
                             <Box>
-
+                                <PencilIcon />
                             </Box>
                         </Stack>
 
-                        <Stack direction="row" spacing={2} alignItems="center">
-                            <Box flexDirection={'column'} display={'flex'}>
+                        <Stack sx={{ flexDirection: { xs: "col", sm: "row" },  alignItems: { xs: "flex-start", sm: "center" },}} spacing={2} gap={"15px"} >
+                            <Box alignItems={"center"} gap={"10px"} display={'flex'}>
 
-                                <TextField type="color" label="Background color" value={bgColor} onChange={(e) => { setBgColor(e.target.value); setImagePreview(null); }} sx={{ width: 110 }} />
+                                <TextField type="color" label="Background color" value={bgColor} onChange={(e) => { setBgColor(e.target.value); setImagePreview(null); }} sx={{ width: 150 }} />
 
+
+
+                            <PaintBucketIcon />
                             </Box>
-                            <Typography>OR</Typography>
-                            <Button variant="outlined" startIcon={<PhotoCamera />} onClick={() => fileRef.current?.click()}>Pick Image</Button>
+                            <Typography sx={{ color: "white" }}>OR</Typography>
+                            <Button variant="outlined" sx={{ color: "white", border: "1px solid #fff" }} startIcon={<PhotoCamera sx={{ color: "white", }} />} onClick={() => fileRef.current?.click()}>Pick Image</Button>
                             <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={onPickImage} />
                         </Stack>
 
                         {imagePreview ? (
                             <Box sx={{ height: 140, borderRadius: 1, overflow: 'hidden', backgroundImage: `url(${imagePreview})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
                         ) : (
-                            <Box sx={{ height: 140, borderRadius: 1, background: bgColor, display: "flex", justifyContent: "center", alignItems: "center", fontWeight: "bold" }}>
+                            <Box sx={{ height: 140, borderRadius: 1, background: bgColor, display: "flex", justifyContent: "center", alignItems: "center", fontWeight: "bold", color: "#979595" }} >
                                 Your Image or background Preview
                             </Box>
 
                         )}
                     </Stack>
                 </DialogContent>
-                <DialogActions sx={{ backgroundColor: "#55048baf", padding: "20px 10px" }}>
+                <DialogActions sx={{ backgroundColor: "#ffffff48", padding: "20px 10px" }}>
                     <Button variant="outlined" onClick={handleClose} sx={{ color: "#ffffff", borderColor: "white" }}>Cancel</Button>
                     <Button variant="contained" onClick={handleCreate}>Create Theme</Button>
                 </DialogActions>

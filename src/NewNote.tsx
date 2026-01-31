@@ -27,7 +27,7 @@ const NewNote = ({ onSubmit, onAddTag, availableTags }: NewNoteProps) => {
             <Typography variant="h3" sx={{
                 textAlign: "center",
                 fontFamily: "Times New Roman",
-                fontSize: { xs: '2rem', md: '3rem', lg: '4rem' },
+                fontSize: { xs: '2.5rem', md: '3rem', lg: '4rem' },
                 fontWeight: 'bold',
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 WebkitBackgroundClip: 'text',
