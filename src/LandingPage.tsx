@@ -43,7 +43,8 @@ const LandingPage = () => {
         <Box
             sx={{
                 minHeight: '100vh',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+                background: 'linear-gradient(135deg, #667eea 0%, #975dd2ff 50%, #fc56fcff 100%)',
+                
                 position: 'relative',
                 overflow: 'hidden',
                 '&::before': {

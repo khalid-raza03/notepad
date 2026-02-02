@@ -302,9 +302,10 @@ export function Note({ deleteNote }: NoteProps) {
                             </Button>
                             <Button
                                 variant="outlined"
+                                component={Link}
+                                to="/"
                                 onClick={() => {
                                     deleteNote(note.id);
-                                    navigate("/notes");
                                 }}
                                 sx={{
                                     transition: 'all 0.3s ease',

@@ -600,7 +600,7 @@ export function NoteForm({
       tags: targetTags,
       themeId,
     });
-    navigate(-1);
+    navigate("/notes");
   }
 
   const rowColSx = {
@@ -763,6 +763,45 @@ export function NoteForm({
             />
           </Grid>
 
+          {/* submit button */}
+
+           <Box display={"flex"} gap={"5px"} sx={{ position: { xs: "absolute", sm: "static" }, bottom: "0%", left: "0%", width: { xs: "100%", sm: "auto" }, }}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  endIcon={<SendIcon />}
+                  sx={{
+                    transition: 'all 0.3s ease-in',
+                    width: { xs: "50%", sm: "auto" },
+                    '&:hover': {
+                      transform: 'scale(1.05) translateY(-2px)',
+                      boxShadow: '0 8px 20px rgba(0,0,0,0.3)'
+                    }
+                  }}
+                >
+                  SUBMIT
+                </Button>
+
+                <Button
+                  component={Link}
+                  to="/notes"
+                  startIcon={<CloseIcon />}
+                  sx={{
+                    transition: 'all 0.3s ease',
+                    width: { xs: "50%", sm: "auto" },
+                    backgroundColor: 'rgb(241, 233, 233)',
+                    border: "1px solid #1976d2",
+                    '&:hover': {
+                      transform: 'scale(1.05) translateY(-2px)',
+                      boxShadow: '0 6px 16px rgba(0,0,0,0.2)',
+                      backgroundColor: 'rgba(255,0,0,0.05)'
+                    }
+                  }}
+                >
+                  Cancel
+                </Button>
+              </Box>
+
           <Grid size={{ xs: 12 }} sx={{
             animation: 'fadeInUp 0.5s ease-out',
             animationDelay: '0.3s',
@@ -866,43 +905,7 @@ export function NoteForm({
               </Box>
 
 
-              <Box display={"flex"} gap={"5px"} sx={{ position: { xs: "absolute", sm: "static" }, bottom: "0%", left: "0%", width: { xs: "100%", sm: "auto" }, }}>
-                <Button
-
-                  type="submit"
-                  variant="contained"
-                  endIcon={<SendIcon />}
-                  sx={{
-                    transition: 'all 0.3s ease-in',
-                    width: { xs: "50%", sm: "auto" },
-                    '&:hover': {
-                      transform: 'scale(1.05) translateY(-2px)',
-                      boxShadow: '0 8px 20px rgba(0,0,0,0.3)'
-                    }
-                  }}
-                >
-                  SUBMIT
-                </Button>
-
-                <Button
-                  component={Link}
-                  to="/notes"
-                  startIcon={<CloseIcon />}
-                  sx={{
-                    transition: 'all 0.3s ease',
-                    width: { xs: "50%", sm: "auto" },
-                    backgroundColor: 'rgb(241, 233, 233)',
-                    border: "1px solid #1976d2",
-                    '&:hover': {
-                      transform: 'scale(1.05) translateY(-2px)',
-                      boxShadow: '0 6px 16px rgba(0,0,0,0.2)',
-                      backgroundColor: 'rgba(255,0,0,0.05)'
-                    }
-                  }}
-                >
-                  Cancel
-                </Button>
-              </Box>
+             
             </Box>
 
 
