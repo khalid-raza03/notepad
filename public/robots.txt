@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://notepad.solviaweb.com/sitemap.xml

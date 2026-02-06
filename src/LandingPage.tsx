@@ -1,4 +1,5 @@
 import { Box, Button, Container, Typography, Stack, Card, CardContent, Fade, Grow } from '@mui/material';
+import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import EditNoteIcon from '@mui/icons-material/EditNote';
@@ -35,7 +36,7 @@ const LandingPage = () => {
         {
             icon: <SaveIcon sx={{ fontSize: 48, color: '#87CEEB' }} />,
             title: 'Auto-Save',
-            description: 'Never lose your work. All notes are automatically saved to your browser\'s local storage. But do not delete cache of your browser otherwise you can loose your work. Persistent saving feature will be added in future.' 
+            description: 'Never lose your work. All notes are automatically saved to your browser\'s local storage. But do not delete cache of your browser otherwise you can loose your work. Persistent saving feature will be added in future.'
         }
     ];
 
@@ -44,7 +45,7 @@ const LandingPage = () => {
             sx={{
                 minHeight: '100vh',
                 background: 'linear-gradient(135deg, #667eea 0%, #975dd2ff 50%, #fc56fcff 100%)',
-                
+
                 position: 'relative',
                 overflow: 'hidden',
                 '&::before': {
@@ -68,6 +69,45 @@ const LandingPage = () => {
             }}
         >
             <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1, py: 8 }}>
+                <Helmet>
+                    <title>Free Online Notepad - Create, Edit & Save Notes | SolviaWeb</title>
+                    <meta name="description" content="A powerful, free online notepad with rich text editing, tag management, and PDF export. Automatically save your notes locally. No login required." />
+                    <meta name="keywords" content="online notepad, free notepad, rich text editor, markdown editor, note taking app, pdf export notes" />
+                    <link rel="canonical" href="https://notepad.solviaweb.com/" />
+
+                    {/* Open Graph / Facebook */}
+                    <meta property="og:type" content="website" />
+                    <meta property="og:url" content="https://notepad.solviaweb.com/" />
+                    <meta property="og:title" content="Free Online Notepad - Create, Edit & Save Notes | SolviaWeb" />
+                    <meta property="og:description" content="A powerful, free online notepad with rich text editing, tag management, and PDF export. Automatically save your notes locally." />
+                    <meta property="og:image" content="https://notepad.solviaweb.com/og-image.jpeg" />
+
+                    {/* Twitter */}
+                    <meta property="twitter:card" content="summary_large_image" />
+                    <meta property="twitter:url" content="https://notepad.solviaweb.com/" />
+                    <meta property="twitter:title" content="Free Online Notepad - Create, Edit & Save Notes | SolviaWeb" />
+                    <meta property="twitter:description" content="A powerful, free online notepad with rich text editing, tag management, and PDF export. Automatically save your notes locally." />
+                    <meta property="twitter:image" content="https://notepad.solviaweb.com/og-image.jpeg" />
+
+                    <script type="application/ld+json">
+                        {`
+                            {
+                                "@context": "https://schema.org",
+                                "@type": "WebApplication",
+                                "name": "SolviaWeb Notepad",
+                                "url": "https://notepad.solviaweb.com/",
+                                "applicationCategory": "Productivity",
+                                "operatingSystem": "Web",
+                                "offers": {
+                                    "@type": "Offer",
+                                    "price": "0",
+                                    "priceCurrency": "USD"
+                                },
+                                "featureList": "Rich Text Editor, Tag Management, PDF Export, Auto-save"
+                            }
+                        `}
+                    </script>
+                </Helmet>
                 <Box >
 
                     {/* Hero Section */}
@@ -98,7 +138,7 @@ const LandingPage = () => {
                             </Typography>
 
                             <Typography
-                                variant="h4"
+                                variant="h4" component="h2"
                                 sx={{
                                     fontSize: { xs: '1.25rem', md: '1.5rem', lg: '1.7rem' },
                                     fontWeight: 500,
@@ -149,7 +189,7 @@ const LandingPage = () => {
                     <Box sx={{ mt: 4 }}>
                         <Fade in={show} timeout={1500}>
                             <Typography
-                                variant="h3"
+                                variant="h3" component="h2"
                                 sx={{
                                     textAlign: 'center',
                                     fontSize: { xs: '1.75rem', md: '2.5rem' },
@@ -198,7 +238,7 @@ const LandingPage = () => {
                                         <CardContent sx={{ p: 4, textAlign: 'center' }}>
                                             <Box sx={{ mb: 2 }}>{feature.icon}</Box>
                                             <Typography
-                                                variant="h6"
+                                                variant="h6" component="h3"
                                                 sx={{
                                                     fontWeight: 700,
                                                     color: '#ffffff',
@@ -230,7 +270,7 @@ const LandingPage = () => {
                 <Fade in={show} timeout={2000}>
                     <Box sx={{ textAlign: 'center', mt: 10, mb: 4 }}>
                         <Typography
-                            variant="h5"
+                            variant="h5" component="h2"
                             sx={{
                                 color: '#ffffff',
                                 mb: 3,
