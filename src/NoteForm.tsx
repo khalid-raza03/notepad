@@ -24,7 +24,7 @@ import { v4 as uuidV4 } from "uuid";
 import { useEditor, EditorContent, Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Markdown } from "tiptap-markdown";
-import Underline from "@tiptap/extension-underline";
+
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
 import TextAlign from "@tiptap/extension-text-align";
@@ -38,14 +38,15 @@ import { getThemeById, getStoredThemes } from "./Themes";
 
 
 
-import { FormatBold, FormatColorResetTwoTone, FormatStrikethroughSharp, FormatUnderlined, Undo, Redo, PictureAsPdf, FormatSize } from "@mui/icons-material";
+import { FormatBold, FormatColorResetTwoTone, FormatStrikethroughSharp, FormatUnderlined, Undo, Redo, PictureAsPdf, FormatSize, Search, FindReplace } from "@mui/icons-material";
 import { CircleCheckBig, Code, Heading1, Heading2, Heading3, ImageUpIcon, Link2Icon, Link2Off, List, ListOrdered, } from 'lucide-react';
 import { TextStyle } from "@tiptap/extension-text-style";
+import { SearchAndReplace } from "./utils/SearchAndReplace";
 import * as pdfjsLib from 'pdfjs-dist';
 import type { TextItem, TextMarkedContent } from "pdfjs-dist/types/src/display/api";
 
 if (typeof window !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 }
 
 // Scrollbar styles that can be used across all components in this file
@@ -87,6 +88,8 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
     anchorEl: null,
     menu: null,
   });
+
+  const [showSearch, setShowSearch] = useState(false);
 
 
   if (!editor) return;
@@ -209,318 +212,383 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
 
 
   const buttonStyle = (isActive: boolean) => ({
-    backgroundColor: isActive ? "skyblue" : "transparent",
-    color: isActive ? "black" : "inherit",
-    transition: 'all 0.3s ease',
+    backgroundColor: isActive ? "rgba(51, 112, 255, 0.1)" : "transparent",
+    color: isActive ? "#3370FF" : "inherit",
+    borderColor: isActive ? "#3370FF" : "inherit",
+    transition: 'all 0.2s ease',
     fontSize: '14px',
     "&:hover": {
-      backgroundColor: isActive ? "skyblue" : "#2667c91a",
-      transform: 'scale(1.05)',
-      boxShadow: '0 2px 8px #00000026'
+      backgroundColor: isActive ? "rgba(51, 112, 255, 0.2)" : "rgba(0,0,0,0.05)",
+      borderColor: "#3370FF",
     }
   });
 
 
 
   return (
-    <Stack direction="row" sx={{
-      gap: '10px', padding: "10px", maxWidth: "1200px", flexWrap: { lg: "wrap", sm: "nowrap" }, overflowX: { lg: "visible", xs: "auto" }, "& .MuiInputBase-input": {
+    <Box mb={2}>
+      <Stack direction="row" sx={{
+        gap: '10px', padding: "10px", width: "100%", maxWidth: { xs: "100%", md: "1200px" }, flexWrap: { md: "wrap", xs: "nowrap" }, overflowX: "auto", "& .MuiInputBase-input": {
 
-        ...scrollbarStyles,
-      },
-    }} mb={2}>
-
-
-      <Button
-        size="small"
-        variant="outlined"
-        onClick={() => editor.chain().focus().toggleBold().run()}
-        sx={buttonStyle(editor.isActive("bold"))}
-      >
-        <FormatBold />
-      </Button>
-
-      <Button
-        size="small"
-        variant="outlined"
-        onClick={() => editor.chain().focus().toggleItalic().run()}
-        sx={buttonStyle(editor.isActive("italic"))}
-      >
-        <FormatItalicIcon sx={{ fontStyle: "italic" }} />
-
-      </Button>
-      <Button
-        size="small"
-        variant="outlined"
-        onClick={() => editor.chain().focus().toggleUnderline().run()}
-        sx={buttonStyle(editor.isActive("underline"))}
-      >
-        <FormatUnderlined />
-      </Button>
-
-      <IconButton
-        size="small"
-        onClick={handleMenuOpen("align")}
-        sx={{ border: "1px solid rgba(0,0,0,0.23)", borderRadius: 1 }}
-      >
-        <FormatAlignLeftIcon />
-      </IconButton>
+          ...scrollbarStyles,
+        },
+      }}>
 
 
-      <Menu
-        anchorEl={menuState.anchorEl}
-        open={menuState.menu === "align"}
-        onClose={handleMenuClose}
-      >
-        <MenuItem
-          onClick={() => {
-            editor.chain().focus().setTextAlign("left").run();
-            handleMenuClose();
-          }}
+        <Button
+          size="small"
+          variant="outlined"
+          onClick={() => editor.chain().focus().toggleBold().run()}
+          sx={buttonStyle(editor.isActive("bold"))}
         >
-          <FormatAlignLeftIcon sx={{ mr: 1 }} /> Left
-        </MenuItem>
+          <FormatBold />
+        </Button>
 
-        <MenuItem
-          onClick={() => {
-            editor.chain().focus().setTextAlign("right").run();
-            handleMenuClose();
-          }}
+        <Button
+          size="small"
+          variant="outlined"
+          onClick={() => editor.chain().focus().toggleItalic().run()}
+          sx={buttonStyle(editor.isActive("italic"))}
         >
-          <FormatAlignRightIcon sx={{ mr: 1 }} /> Right
-        </MenuItem>
+          <FormatItalicIcon sx={{ fontStyle: "italic" }} />
 
-        <MenuItem
-          onClick={() => {
-            editor.chain().focus().setTextAlign("center").run();
-            handleMenuClose();
-          }}
+        </Button>
+        <Button
+          size="small"
+          variant="outlined"
+          onClick={() => editor.chain().focus().toggleUnderline().run()}
+          sx={buttonStyle(editor.isActive("underline"))}
         >
-          <FormatAlignCenterIcon sx={{ mr: 1 }} /> Center
-        </MenuItem>
+          <FormatUnderlined />
+        </Button>
 
-        <MenuItem
-          onClick={() => {
-            editor.chain().focus().setTextAlign("justify").run();
-            handleMenuClose();
-          }}
+        <IconButton
+          size="small"
+          onClick={handleMenuOpen("align")}
+          sx={{ border: "1px solid rgba(0,0,0,0.23)", borderRadius: 1 }}
         >
-          <FormatAlignJustifyIcon sx={{ mr: 1 }} /> Justify
-        </MenuItem>
-      </Menu>
+          <FormatAlignLeftIcon />
+        </IconButton>
 
 
-
-
-      <Button
-        size="small"
-        variant="outlined"
-        onClick={() => editor.chain().focus().toggleStrike().run()}
-        sx={buttonStyle(editor.isActive("strike"))}
-      >
-        <FormatStrikethroughSharp />
-      </Button>
-
-
-      <IconButton
-        size="small"
-        onClick={handleMenuOpen("format")}
-        sx={{ border: "1px solid rgba(0,0,0,0.23)", borderRadius: 1 }}
-      >
-        <TextFormatTwoToneIcon />
-      </IconButton>
-
-      <Menu
-        anchorEl={menuState.anchorEl}
-        open={menuState.menu === "format"}
-        onClose={handleMenuClose}
-      >
-        <MenuItem
-          onClick={() => {
-            editor.chain().focus().toggleHeading({ level: 1 }).run();
-            handleMenuClose();
-          }}
+        <Menu
+          anchorEl={menuState.anchorEl}
+          open={menuState.menu === "align"}
+          onClose={handleMenuClose}
         >
-          <Heading1 />
-        </MenuItem>
+          <MenuItem
+            onClick={() => {
+              editor.chain().focus().setTextAlign("left").run();
+              handleMenuClose();
+            }}
+          >
+            <FormatAlignLeftIcon sx={{ mr: 1 }} /> Left
+          </MenuItem>
 
-        <MenuItem
-          onClick={() => {
-            editor.chain().focus().toggleHeading({ level: 2 }).run();
-            handleMenuClose();
-          }}
+          <MenuItem
+            onClick={() => {
+              editor.chain().focus().setTextAlign("right").run();
+              handleMenuClose();
+            }}
+          >
+            <FormatAlignRightIcon sx={{ mr: 1 }} /> Right
+          </MenuItem>
+
+          <MenuItem
+            onClick={() => {
+              editor.chain().focus().setTextAlign("center").run();
+              handleMenuClose();
+            }}
+          >
+            <FormatAlignCenterIcon sx={{ mr: 1 }} /> Center
+          </MenuItem>
+
+          <MenuItem
+            onClick={() => {
+              editor.chain().focus().setTextAlign("justify").run();
+              handleMenuClose();
+            }}
+          >
+            <FormatAlignJustifyIcon sx={{ mr: 1 }} /> Justify
+          </MenuItem>
+        </Menu>
+
+
+
+
+        <Button
+          size="small"
+          variant="outlined"
+          onClick={() => editor.chain().focus().toggleStrike().run()}
+          sx={buttonStyle(editor.isActive("strike"))}
         >
-          <Heading2 />
-        </MenuItem>
+          <FormatStrikethroughSharp />
+        </Button>
 
-        <MenuItem
-          onClick={() => {
-            editor.chain().focus().toggleHeading({ level: 3 }).run();
-            handleMenuClose();
-          }}
+
+        <IconButton
+          size="small"
+          onClick={handleMenuOpen("format")}
+          sx={{ border: "1px solid rgba(0,0,0,0.23)", borderRadius: 1 }}
         >
-          <Heading3 />
-        </MenuItem>
+          <TextFormatTwoToneIcon />
+        </IconButton>
 
-        <MenuItem
-          onClick={() => {
-            editor.chain().focus().setParagraph().run();
-            handleMenuClose();
-          }}
+        <Menu
+          anchorEl={menuState.anchorEl}
+          open={menuState.menu === "format"}
+          onClose={handleMenuClose}
         >
-          Para
-        </MenuItem>
-      </Menu>
+          <MenuItem
+            onClick={() => {
+              editor.chain().focus().toggleHeading({ level: 1 }).run();
+              handleMenuClose();
+            }}
+          >
+            <Heading1 />
+          </MenuItem>
 
-      <Button
-        size="small"
-        variant="outlined"
-        onClick={() => editor.chain().focus().toggleBulletList().run()}
-        sx={buttonStyle(editor.isActive("bulletList"))}
-      >
-        <List />
+          <MenuItem
+            onClick={() => {
+              editor.chain().focus().toggleHeading({ level: 2 }).run();
+              handleMenuClose();
+            }}
+          >
+            <Heading2 />
+          </MenuItem>
 
-      </Button>
+          <MenuItem
+            onClick={() => {
+              editor.chain().focus().toggleHeading({ level: 3 }).run();
+              handleMenuClose();
+            }}
+          >
+            <Heading3 />
+          </MenuItem>
 
-      <Button
-        size="small"
-        variant="outlined"
-        onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        sx={buttonStyle(editor.isActive("orderedList"))}
-      >
-        <ListOrdered />
+          <MenuItem
+            onClick={() => {
+              editor.chain().focus().setParagraph().run();
+              handleMenuClose();
+            }}
+          >
+            Para
+          </MenuItem>
+        </Menu>
 
-      </Button>
+        <Button
+          size="small"
+          variant="outlined"
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          sx={buttonStyle(editor.isActive("bulletList"))}
+        >
+          <List />
 
-      <Button
-        size="small"
-        variant="outlined"
-        onClick={() => editor.chain().focus().toggleTaskList().run()}
-        sx={buttonStyle(editor.isActive("taskList"))}
-      >
-        <CircleCheckBig />
+        </Button>
 
-      </Button>
+        <Button
+          size="small"
+          variant="outlined"
+          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          sx={buttonStyle(editor.isActive("orderedList"))}
+        >
+          <ListOrdered />
 
-      <Box sx={{ position: "relative", display: "inline-flex" }}>
+        </Button>
+
+        <Button
+          size="small"
+          variant="outlined"
+          onClick={() => editor.chain().focus().toggleTaskList().run()}
+          sx={buttonStyle(editor.isActive("taskList"))}
+        >
+          <CircleCheckBig />
+
+        </Button>
+
+        <Box sx={{ position: "relative", display: "inline-flex" }}>
+          <Button
+            size="small"
+            variant="outlined"
+            sx={{ backgroundColor: "white" }}
+            onClick={() => colorInputRef.current?.click()}
+          >
+            <FormatColorTextTwoToneIcon />
+          </Button>
+
+          <input
+            ref={colorInputRef}
+            type="color"
+            onChange={applyColor}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: 0,
+              height: 0,
+              opacity: 0,
+              pointerEvents: "none",
+            }}
+          />
+        </Box>
+
+
+
         <Button
           size="small"
           variant="outlined"
           sx={{ backgroundColor: "white" }}
-          onClick={() => colorInputRef.current?.click()}
-        >
-          <FormatColorTextTwoToneIcon />
+          onClick={() => editor.chain().focus().unsetColor().run()}>
+          <FormatColorResetTwoTone />
         </Button>
 
-        <input
-          ref={colorInputRef}
-          type="color"
-          onChange={applyColor}
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: 0,
-            height: 0,
-            opacity: 0,
-            pointerEvents: "none",
+
+        <Button
+          size="small"
+          variant="outlined"
+          onClick={setLink}
+          sx={buttonStyle(editor.isActive("link"))}
+        >
+          <Link2Icon />
+        </Button>
+
+        <Button
+          size="small"
+          sx={{ backgroundColor: "white" }}
+          variant="outlined"
+          onClick={() => editor.chain().focus().unsetLink().run()}
+        >
+          <Link2Off />
+        </Button>
+
+
+        <Button
+          size="small"
+          variant="outlined"
+          title="pdf to text"
+          sx={{ backgroundColor: "white" }}
+          onClick={addPdfFromDevice}
+        >
+          <PictureAsPdf />
+        </Button>
+
+        <Button
+          size="small"
+          variant="outlined"
+          onClick={addImageFromDevice}
+          sx={{ backgroundColor: "white" }}
+        >
+          <ImageUpIcon />
+        </Button>
+        {isImageSelected && (
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <TextField
+              size="small"
+              type="number"
+              label="Image width"
+              value={selectedImageAttrs.width || 250}
+              onChange={(e) => updateImageSize(Number(e.target.value))}
+              inputProps={{ min: 50, max: 600 }}
+              sx={{ width: 110 }}
+            />
+          </Box>
+        )}
+
+        <Button
+          size="small"
+          variant="outlined"
+          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+          sx={{
+            ...buttonStyle(editor.isActive("codeBlock")),
+            display: { xs: 'none', sm: 'inline-flex' }
           }}
-        />
-      </Box>
+        >
+          <Code />
+        </Button>
 
-
-
-      <Button
-        size="small"
-        variant="outlined"
-        sx={{ backgroundColor: "white" }}
-        onClick={() => editor.chain().focus().unsetColor().run()}>
-        <FormatColorResetTwoTone />
-      </Button>
-
-
-      <Button
-        size="small"
-        variant="outlined"
-        onClick={setLink}
-        sx={buttonStyle(editor.isActive("link"))}
-      >
-        <Link2Icon />
-      </Button>
-
-      <Button
-        size="small"
-        sx={{ backgroundColor: "white" }}
-        variant="outlined"
-        onClick={() => editor.chain().focus().unsetLink().run()}
-      >
-        <Link2Off />
-      </Button>
-
-
-      <Button
-        size="small"
-        variant="outlined"
-        sx={{ backgroundColor: "white" }}
-        onClick={addPdfFromDevice}
-      >
-        <PictureAsPdf />
-      </Button>
-
-      <Button
-        size="small"
-        variant="outlined"
-        onClick={addImageFromDevice}
-        sx={{ backgroundColor: "white" }}
-      >
-        <ImageUpIcon />
-      </Button>
-      {isImageSelected && (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Box display={"flex"} alignItems={"center"} gap={1}>
+          <FormatSize titleAccess="select your text and set font-size" />
           <TextField
-            size="small"
             type="number"
-            label="Image width"
-            value={selectedImageAttrs.width || 250}
-            onChange={(e) => updateImageSize(Number(e.target.value))}
-            inputProps={{ min: 50, max: 600 }}
-            sx={{ width: 110 }}
+            size="small"
+            inputProps={{ min: 10, step: 1 }}
+            value={fontSize}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value) {
+                editor.chain().setFontSize(String(value)).run();
+              } else {
+                editor.chain().unsetFontSize().run();
+              }
+            }}
+            sx={{ width: 120 }}
           />
         </Box>
-      )}
 
-      <Button
-        size="small"
-        variant="outlined"
-        onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-        sx={{
-          ...buttonStyle(editor.isActive("codeBlock")),
-          display: { xs: 'none', sm: 'inline-flex' }
-        }}
-      >
-        <Code />
-      </Button>
-
-      <Box display={"flex"} alignItems={"center"} gap={1}>
-        <FormatSize titleAccess="select your text and set font-size" />
-        <TextField
-          type="number"
+        <Button
           size="small"
-          inputProps={{ min: 10, step: 1 }}
-          value={fontSize}
-          onChange={(e) => {
-            const value = e.target.value;
-            if (value) {
-              editor.chain().setFontSize(String(value)).run();
-            } else {
-              editor.chain().unsetFontSize().run();
-            }
-          }}
-          sx={{ width: 120 }}
-        />
-      </Box>
+          variant="outlined"
+          onClick={() => setShowSearch(!showSearch)}
+          sx={buttonStyle(showSearch)}
+          title="Find and Replace"
+        >
+          <FindReplace />
+        </Button>
 
-    </Stack>
+      </Stack>
+
+      {showSearch && (
+        <Stack direction="row" spacing={1} sx={{ mt: 1, p: 1, border: '1px solid #eee', borderRadius: 2, flexWrap: "wrap", gap: 1 }} alignItems="center">
+          <TextField
+            size="small"
+            placeholder="Search..."
+            variant="outlined"
+            onChange={(e) => editor.commands.setSearchTerm(e.target.value)}
+            sx={{
+              width: { xs: '100%', sm: 'auto' },
+              "& .MuiOutlinedInput-root": { borderRadius: 2 }
+            }}
+          />
+          <TextField
+            size="small"
+            placeholder="Replace with..."
+            variant="outlined"
+            onChange={(e) => editor.commands.setReplaceTerm(e.target.value)}
+            sx={{
+              width: { xs: '100%', sm: 'auto' },
+              "& .MuiOutlinedInput-root": { borderRadius: 2 }
+            }}
+          />
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => editor.commands.replace()}
+            sx={{ borderRadius: 2 }}
+          >
+            Replace
+          </Button>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => editor.commands.replaceAll()}
+            sx={{ borderRadius: 2 }}
+          >
+            Replace All
+          </Button>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => {
+              editor.commands.clearSearch();
+              setShowSearch(false);
+            }}
+            sx={{ borderRadius: 2 }}
+          >
+            Clear
+          </Button>
+        </Stack>
+      )}
+    </Box>
   );
 }
 
@@ -556,7 +624,6 @@ export function NoteForm({
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Underline,
       TaskList,
       FontSize,
       TextStyle,
@@ -584,6 +651,7 @@ export function NoteForm({
         transformPastedText: false,
         transformCopiedText: false,
       }),
+      SearchAndReplace,
     ],
     content: description,
     onUpdate: () => forceUpdate({}),
@@ -622,9 +690,13 @@ export function NoteForm({
       component="form"
       onSubmit={handleSubmit}
       sx={{
-        ...selectedTheme.containerSx,
+        bgcolor: 'background.paper',
         borderRadius: 3,
-        boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
+        boxShadow: (theme) => theme.palette.mode === 'light'
+          ? "0 4px 20px rgba(0,0,0,0.08)"
+          : "0 4px 20px rgba(0,0,0,0.4)",
+        border: '1px solid',
+        borderColor: 'divider',
         maxWidth: "1200px",
         position: { xs: "relative", sm: "static" },
         mx: "auto",
@@ -765,42 +837,42 @@ export function NoteForm({
 
           {/* submit button */}
 
-           <Box display={"flex"} gap={"5px"} sx={{ position: { xs: "absolute", sm: "static" }, bottom: "0%", left: "0%", width: { xs: "100%", sm: "auto" }, }}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  endIcon={<SendIcon />}
-                  sx={{
-                    transition: 'all 0.3s ease-in',
-                    width: { xs: "50%", sm: "auto" },
-                    '&:hover': {
-                      transform: 'scale(1.05) translateY(-2px)',
-                      boxShadow: '0 8px 20px rgba(0,0,0,0.3)'
-                    }
-                  }}
-                >
-                  SUBMIT
-                </Button>
+          <Box display={"flex"} gap={"5px"} sx={{ position: { xs: "absolute", sm: "static" }, bottom: "0%", left: "0%", width: { xs: "100%", sm: "auto" }, }}>
+            <Button
+              type="submit"
+              variant="contained"
+              endIcon={<SendIcon />}
+              sx={{
+                transition: 'all 0.3s ease-in',
+                width: { xs: "50%", sm: "auto" },
+                '&:hover': {
+                  transform: 'scale(1.05) translateY(-2px)',
+                  boxShadow: '0 8px 20px rgba(0,0,0,0.3)'
+                }
+              }}
+            >
+              SUBMIT
+            </Button>
 
-                <Button
-                  component={Link}
-                  to="/notes"
-                  startIcon={<CloseIcon />}
-                  sx={{
-                    transition: 'all 0.3s ease',
-                    width: { xs: "50%", sm: "auto" },
-                    backgroundColor: 'rgb(241, 233, 233)',
-                    border: "1px solid #1976d2",
-                    '&:hover': {
-                      transform: 'scale(1.05) translateY(-2px)',
-                      boxShadow: '0 6px 16px rgba(0,0,0,0.2)',
-                      backgroundColor: 'rgba(255,0,0,0.05)'
-                    }
-                  }}
-                >
-                  Cancel
-                </Button>
-              </Box>
+            <Button
+              component={Link}
+              to="/notes"
+              startIcon={<CloseIcon />}
+              sx={{
+                transition: 'all 0.3s ease',
+                width: { xs: "50%", sm: "auto" },
+                backgroundColor: 'rgb(241, 233, 233)',
+                border: "1px solid #1976d2",
+                '&:hover': {
+                  transform: 'scale(1.05) translateY(-2px)',
+                  boxShadow: '0 6px 16px rgba(0,0,0,0.2)',
+                  backgroundColor: 'rgba(255,0,0,0.05)'
+                }
+              }}
+            >
+              Cancel
+            </Button>
+          </Box>
 
           <Grid size={{ xs: 12 }} sx={{
             animation: 'fadeInUp 0.5s ease-out',
@@ -866,9 +938,9 @@ export function NoteForm({
           >
 
 
-            <Box display={"flex"}  columnGap={"10px"} rowGap={"40px"} sx={rowColSx}>
+            <Box display={"flex"} columnGap={"10px"} rowGap={"40px"} sx={rowColSx}>
 
-              <Box display={"flex"} gap={"10px"} sx={{margin:{xs:"16px 0", sm:"0"}}} >
+              <Box display={"flex"} gap={"10px"} sx={{ margin: { xs: "25px 0", sm: "0" } }} >
                 <Button
                   type="button"
                   size="small"
@@ -905,7 +977,7 @@ export function NoteForm({
               </Box>
 
 
-             
+
             </Box>
 
 

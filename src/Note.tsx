@@ -1,7 +1,7 @@
 import React from 'react';
-import { Box, Button, Grid, Stack, Typography, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
+import { Box, Button, Grid, Stack, Typography, Select, MenuItem, FormControl, InputLabel, useTheme } from "@mui/material";
 import { useNote } from "./useNote";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { Document, Page, Text, View, StyleSheet, PDFDownloadLink, Image } from '@react-pdf/renderer';
 
@@ -26,6 +26,18 @@ function renderHtmlToPdf(html: string) {
         );
 
         switch (node.tagName.toLowerCase()) {
+            case "div":
+                return <View key={key}>{children}</View>;
+
+            case "br":
+                return <Text key={key}>{"\n"}</Text>;
+
+            case "strong":
+                return <Text key={key} style={{ fontWeight: "bold" }}>{children}</Text>;
+
+            case "em":
+                return <Text key={key} style={{ fontStyle: "italic" }}>{children}</Text>;
+
             case "p":
                 return <Text key={key} style={{ marginBottom: 8 }}>{children}</Text>;
 
@@ -110,10 +122,8 @@ function renderHtmlToPdf(html: string) {
 
 export function Note({ deleteNote }: NoteProps) {
     const note = useNote();
-    const navigate = useNavigate()
-    const themeSx = (note as any).theme?.containerSx ?? {};
-    const initialBg = (themeSx && (themeSx.backgroundColor || themeSx.background)) || "#ffffff";
-    const [bgColor, setBgColor] = useState(initialBg);
+    const theme = useTheme();
+    const [bgColor, setBgColor] = useState("");
     const [fontFamily, setFontFamily] = useState("sans-serif");
 
     const styles = StyleSheet.create({
@@ -124,7 +134,7 @@ export function Note({ deleteNote }: NoteProps) {
             padding: 30,
         },
         title: {
-            fontSize: "calc(24px + (45 - 24) * ((100vw - 320px) / (1820 - 320)))",
+            fontSize: 32,
             marginBottom: 10,
             fontWeight: 'bold',
         },
@@ -136,7 +146,8 @@ export function Note({ deleteNote }: NoteProps) {
         tag: {
             backgroundColor: '#1976d2',
             color: 'white',
-            padding: '4 8',
+            paddingVertical: 4,
+            paddingHorizontal: 8,
             marginRight: 8,
             marginBottom: 4,
             fontSize: 10,
@@ -205,8 +216,7 @@ export function Note({ deleteNote }: NoteProps) {
                     "& *": {
                         fontFamily: "inherit !important",
                     },
-                    ...themeSx,
-                    backgroundColor: bgColor,
+                    backgroundColor: bgColor || theme.palette.background.paper,
                 }}
             >
                 {/* Header section */}
@@ -231,11 +241,7 @@ export function Note({ deleteNote }: NoteProps) {
                     }}>
                         <Typography variant="h4" component="h1" sx={{
                             fontWeight: 'bold',
-                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                            WebkitBackgroundClip: 'text',
-                            fontSize: "calc(24px + (45 - 24) * ((100vw - 320px) / (1820 - 320)))",
-                            WebkitTextFillColor: 'transparent',
-                            backgroundClip: 'text',
+                            color: 'inherit',
                         }}>
                             <b>Title -</b>  {note.title}
                         </Typography>
@@ -254,13 +260,22 @@ export function Note({ deleteNote }: NoteProps) {
                                             px: 1.5,
                                             py: 0.5,
                                             borderRadius: 1,
-                                            bgcolor: "primary.main",
-                                            color: "white",
-                                            fontSize: "0.75rem",
+                                            bgcolor: (theme) => theme.palette.mode === 'light'
+                                                ? 'rgba(51, 112, 255, 0.1)'
+                                                : 'rgba(75, 132, 255, 0.2)',
+                                            color: 'primary.main',
+                                            fontWeight: 600,
+                                            fontSize: '0.75rem',
+                                            border: '1px solid',
+                                            borderColor: (theme) => theme.palette.mode === 'light'
+                                                ? 'rgba(51, 112, 255, 0.2)'
+                                                : 'transparent',
                                             transition: 'all 0.3s ease',
                                             '&:hover': {
-                                                transform: 'scale(1.1)',
-                                                boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+                                                bgcolor: (theme) => theme.palette.mode === 'light'
+                                                    ? 'rgba(51, 112, 255, 0.2)'
+                                                    : 'rgba(75, 132, 255, 0.3)',
+                                                transform: 'translateY(-1px)',
                                             }
                                         }}
                                     >
@@ -336,7 +351,7 @@ export function Note({ deleteNote }: NoteProps) {
                         </Stack>
                     </Grid>
 
-                    <Stack direction="row" sx={{ gap: "10px" }} flexWrap="wrap" alignItems="center" className="pdf-exclude">
+                    <Stack direction="row" sx={{ gap: "20px" }} flexWrap="wrap" alignItems="center" className="pdf-exclude">
                         <Box sx={{
                             border: '2px solid #ddd',
                             borderRadius: 1,
@@ -352,13 +367,16 @@ export function Note({ deleteNote }: NoteProps) {
                                 onChange={(e) => setBgColor(e.target.value)}
                                 style={{
                                     width: '40px',
-                                    height: '30px',
+                                    height: '40px',
                                     border: 'none',
-                                    borderRadius: '4px',
+                                    padding: '5px',
+                                    borderRadius: '10px',
                                     cursor: 'pointer'
                                 }}
                             />
                         </Box>
+
+
 
                         {/* Font family */}
                         <FormControl size="small" sx={{ minWidth: 120 }}>
@@ -441,10 +459,10 @@ export function Note({ deleteNote }: NoteProps) {
                     sx={{
                         textDecoration: 'none',
                         backgroundColor: 'transparent',
-                        ...((note as any).theme?.editorSx ?? {}),
+
                         borderRadius: 3,
                         textWrap: 'break-word',
-                        boxShadow: 5,
+                        boxShadow: 3,
                         padding: 3,
                         animation: 'fadeInUp 0.6s ease-out',
                         animationDelay: '0.2s',

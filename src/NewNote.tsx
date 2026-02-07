@@ -26,24 +26,11 @@ const NewNote = ({ onSubmit, onAddTag, availableTags }: NewNoteProps) => {
         }}>
             <Typography variant="h3" sx={{
                 textAlign: "center",
-                fontFamily: "Times New Roman",
-                fontSize: { xs: '2.5rem', md: '3rem', lg: '4rem' },
-                fontWeight: 'bold',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                py: 2,
-                animation: 'gradientShift 3s ease infinite',
-                '@keyframes gradientShift': {
-                    '0%, 100%': {
-                        filter: 'hue-rotate(0deg)'
-                    },
-                    '50%': {
-                        filter: 'hue-rotate(20deg)'
-                    }
-                }
-            }}> Notepad</Typography>
+                fontWeight: '800',
+                letterSpacing: '-0.02em',
+                color: 'text.primary',
+                py: 4,
+            }}>Create New Note</Typography>
             <NoteForm onSubmit={onSubmit} onAddTag={onAddTag} availableTags={availableTags} />
         </Box>
 

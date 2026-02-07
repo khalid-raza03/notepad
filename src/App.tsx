@@ -11,8 +11,11 @@ import { v4 as uuidV4 } from 'uuid';
 import { Note } from './Note';
 import type { NoteTheme } from './Themes';
 import { getThemeById } from './Themes';
-import { Box, CircularProgress } from '@mui/material';
+import { Box, CircularProgress, ThemeProvider, CssBaseline } from '@mui/material';
+import type { PaletteMode } from '@mui/material';
 import ChooseTheme from './NotesTheme';
+import { getTheme } from './theme';
+import { ThemeContext } from './ThemeContext';
 
 const NewNote = lazy(() => import('./NewNote'));
 const NotesList = lazy(() => import('./NotesList'));
@@ -52,6 +55,13 @@ function App() {
 
   const [tags, setTags] = useLocalStorage<Tag[]>("Tags", [])
   const [notes, setNotes] = useLocalStorage<RawNote[]>("Notes", []);
+  const [mode, setMode] = useLocalStorage<PaletteMode>("themeMode", "light");
+
+  const theme = useMemo(() => getTheme(mode), [mode]);
+
+  const toggleTheme = () => {
+    setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+  };
 
   const notesWithTags = useMemo(
     () => {
@@ -113,42 +123,35 @@ function App() {
 
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      width: '100%',
-      backgroundImage: `url(${import.meta.env.BASE_URL}background.webp)`,
-      backgroundRepeat: "repeat",
-      backgroundSize: "cover",
-      backgroundAttachment: "fixed",
-      backgroundPosition: "center center",
-      padding: ' 0'
-    }}>
-      <Box>
-        <Suspense fallback={
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-            <CircularProgress sx={{ color: 'white' }} />
-          </Box>
-        }>
-          <Routes>
-            <Route path='/' element={<LandingPage />}></Route>
-            <Route path='/notes' element={<NotesList notes={notesWithTags} availableTags={tags} updateTag={updateTag} deleteTag={deleteTag} />}></Route>
-            <Route path='/new' element={<NewNote onSubmit={onCreateNote} onAddTag={addTag} availableTags={tags}
-            />} />
-            <Route path="/themes" element={<ChooseTheme />} />
+    <ThemeContext.Provider value={{ mode, toggleTheme }}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+          <Suspense fallback={
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+              <CircularProgress />
+            </Box>
+          }>
+            <Routes>
+              <Route path='/' element={<LandingPage />}></Route>
+              <Route path='/notes' element={<NotesList notes={notesWithTags} availableTags={tags} updateTag={updateTag} deleteTag={deleteTag} />}></Route>
+              <Route path='/new' element={<NewNote onSubmit={onCreateNote} onAddTag={addTag} availableTags={tags}
+              />} />
+              <Route path="/themes" element={<ChooseTheme />} />
 
 
-            <Route path='/:id' element={<NoteLayout notes={notesWithTags} />}>
-              <Route index element={<Note deleteNote={deleteNote} />} />
-              <Route path='edit' element={<EditNotes onSubmit={onUpdateNotes} onAddTag={addTag} availableTags={tags} />} />
+              <Route path='/:id' element={<NoteLayout notes={notesWithTags} />}>
+                <Route index element={<Note deleteNote={deleteNote} />} />
+                <Route path='edit' element={<EditNotes onSubmit={onUpdateNotes} onAddTag={addTag} availableTags={tags} />} />
 
-            </Route>
+              </Route>
 
-            <Route path='*' element={<Navigate to="/" />}></Route>
-          </Routes>
-        </Suspense>
-      </Box>
-
-    </div >
+              <Route path='*' element={<Navigate to="/" />}></Route>
+            </Routes>
+          </Suspense>
+        </Box>
+      </ThemeProvider>
+    </ThemeContext.Provider>
   )
 }
 

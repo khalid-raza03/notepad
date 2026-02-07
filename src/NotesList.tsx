@@ -3,9 +3,10 @@ import { useMemo, useState } from "react";
 import ReactSelect from "react-select";
 import type { Tag, NoteProps } from "./App";
 import { Link } from "react-router-dom";
-import { styled } from '@mui/material/styles';
-import { ClearOutlined } from '@mui/icons-material';
-import { Paintbrush, PlusCircle, TagIcon } from "lucide-react";
+import { styled, useTheme } from '@mui/material/styles';
+import { ClearOutlined, DarkMode, LightMode } from '@mui/icons-material';
+import { PlusCircle, TagIcon } from "lucide-react";
+import { useThemeContext } from "./ThemeContext";
 
 
 
@@ -22,6 +23,8 @@ export default function NotesList({ availableTags, notes, updateTag, deleteTag }
     const [selectedTag, setSelectedTag] = useState<Tag[]>([]);
     const [title, setTitle] = useState("");
     const [open, setOpen] = useState(false);
+    const { mode, toggleTheme } = useThemeContext();
+    const theme = useTheme();
 
     const filteredNotes = useMemo(() => {
         return notes.filter(note => {
@@ -31,18 +34,10 @@ export default function NotesList({ availableTags, notes, updateTag, deleteTag }
 
     return (
         <Box sx={{
-            backgroundImage: "url('/background.svg')",
-            backgroundRepeat: "repeat",
-            backgroundSize: "cover",
             minHeight: '100vh',
             paddingTop: {
-                xs: '30px',
+                xs: '10px',
                 md: '60px'
-            },
-            animation: 'fadeIn 0.5s ease-in',
-            '@keyframes fadeIn': {
-                from: { opacity: 0 },
-                to: { opacity: 1 }
             }
         }}>
             <Box sx={{
@@ -57,7 +52,10 @@ export default function NotesList({ availableTags, notes, updateTag, deleteTag }
                 <Stack
                     spacing={3}
                     sx={{
-                        mb: 4,
+                        mb: {
+                            xs: 2,
+                            md: 4,
+                        },
                         animation: 'slideDown 0.6s ease-out',
                         '@keyframes slideDown': {
                             from: {
@@ -72,27 +70,24 @@ export default function NotesList({ availableTags, notes, updateTag, deleteTag }
                     }}
                 >
                     <Stack
-                        direction={{ xs: 'column', sm: 'row' }}
+                        direction={{ xs: 'row' }}
                         justifyContent="space-between"
-                        alignItems={{ xs: 'stretch', sm: 'center' }}
+                        alignItems={{ xs: 'center' }}
                         spacing={2}
                     >
                         <Typography
                             variant="h3"
                             sx={{
-                                fontWeight: "bold",
-                                fontFamily: "Times New Roman",
-                                fontSize: "calc(24px + (45 - 24) * ((100vw - 320px) / (1820 - 320)))",
-                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                                backgroundClip: 'text',
+                                fontWeight: "800",
+                                fontSize: "calc(28px + (44 - 28) * ((100vw - 320px) / (1820 - 320)))",
+                                letterSpacing: '-0.02em',
+                                color: 'text.primary',
                             }}
-                        >Your Notes List</Typography>
+                        >Your Notes</Typography>
 
                         <Stack direction="row" flexWrap={'wrap'} gap={'10px'} alignItems={'flex-start'} >
 
-                            <Box zIndex={"999"} sx={{ display: "flex", gap:{xs:"0px", sm:"10px"}, position: { xs: "fixed", sm: "static" }, backgroundColor:{xs:"white", sm:"inherit"}, bottom: "-5px", left: "0%", width: { xs: "100%", sm: "auto" }, }}>
+                            <Box zIndex={"999"} sx={{ display: "flex", gap: { xs: "0px", sm: "10px" }, position: { xs: "fixed", md: "static" }, backgroundColor: { xs: "white", md: "inherit" }, bottom: "-5px", left: "0%", width: { xs: "100%", md: "auto" }, }}>
                                 <Button
                                     component={Link}
                                     to="/new"
@@ -109,12 +104,12 @@ export default function NotesList({ availableTags, notes, updateTag, deleteTag }
                                             xs: "12px",
                                             lg: "16px"
                                         },
-                                        paddingY: { xs: "20px", sm: "12px" },
+                                        paddingY: { xs: "20px", md: "12px" },
                                         display: 'flex',
                                         alignItems: 'center',
-                                        borderRadius:{xs:"0px", sm:"'8px'"} ,
+                                        borderRadius: { xs: "0px", sm: "8px" },
                                         gap: '6px',
-                                        width: { xs: "50%", sm: "auto" },
+                                        width: { xs: "50%", md: "auto" },
                                     }}
                                 >Create <PlusCircle /></Button>
                                 <Button
@@ -128,12 +123,12 @@ export default function NotesList({ availableTags, notes, updateTag, deleteTag }
                                             transform: 'scale(1.05)',
                                             boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
                                         },
-                                        paddingY: { xs: "20px", sm: "12px" },
+                                        paddingY: { xs: "20px", md: "12px" },
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: '6px',
-                                                                               borderRadius:{xs:"0px", sm:"'8px'"} ,
-                                        width: { xs: "50%", sm: "auto" },
+                                        borderRadius: { xs: "0px", sm: "8px" },
+                                        width: { xs: "50%", md: "auto" },
                                     }}
                                 >
                                     <TagIcon />  Edit Tags
@@ -143,29 +138,28 @@ export default function NotesList({ availableTags, notes, updateTag, deleteTag }
 
 
                             <Button
-                                component={Link}
-                                to="/themes"
-                                variant="contained"
-                               
+                                onClick={toggleTheme}
+                                variant="outlined"
+
                                 sx={{
                                     '&:hover': {
                                         transform: 'scale(1.05)',
-                                        boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
                                     },
-                                                                           borderRadius:{xs:"0px", sm:"'8px'"} ,
+                                    borderRadius: { xs: "50px", sm: "8px" },
                                     transition: 'all 0.3s ease-in-out',
-                                    backgroundColor: '#ba127d',
                                     fontSize: {
-                                        xs: "12px",
+                                        xs: "14px",
                                         lg: "16px"
                                     },
 
-                                    paddingY: { xs: "20px", sm: "12px" },
-                                    position: { xs: "fixed", sm: "static" }, bottom: "62px", left: "0%", width: { xs: "100%", sm: "auto" },
-                                 zIndex: "999",
+                                    paddingY: { xs: "20px", md: "12px" },
 
+
+                                    color: 'text.primary',
+                                    borderColor: 'divider',
+                                    backgroundColor: 'background.paper',
                                 }}
-                            ><span style={{ margin: "0 6px" }}>Choose a Theme</span>  <Paintbrush /> </Button>
+                            ><Typography sx={{ display: { xs: "none", md: "block" }, margin: "0 6px" }}>{mode === 'dark' ? 'Light Mode' : 'Dark Mode'}</Typography> {mode === 'dark' ? <LightMode /> : <DarkMode />} </Button>
                         </Stack>
                     </Stack>
 
@@ -271,6 +265,7 @@ function NoteCard({ id, title, tags, theme }: simplifiedNote & { theme?: any }) 
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
         borderRadius: 3,
+        boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
@@ -316,13 +311,22 @@ function NoteCard({ id, title, tags, theme }: simplifiedNote & { theme?: any }) 
                                     px: 1.5,
                                     py: 0.5,
                                     borderRadius: 1,
-                                    bgcolor: 'primary.main',
-                                    color: 'white',
+                                    bgcolor: (theme) => theme.palette.mode === 'light'
+                                        ? 'rgba(51, 112, 255, 0.1)'
+                                        : 'rgba(75, 132, 255, 0.2)',
+                                    color: 'primary.main',
+                                    fontWeight: 600,
                                     fontSize: '0.75rem',
+                                    border: '1px solid',
+                                    borderColor: (theme) => theme.palette.mode === 'light'
+                                        ? 'rgba(51, 112, 255, 0.2)'
+                                        : 'transparent',
                                     transition: 'all 0.3s ease',
                                     '&:hover': {
-                                        transform: 'scale(1.1)',
-                                        boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+                                        bgcolor: (theme) => theme.palette.mode === 'light'
+                                            ? 'rgba(51, 112, 255, 0.2)'
+                                            : 'rgba(75, 132, 255, 0.3)',
+                                        transform: 'translateY(-1px)',
                                     }
                                 }}
                             >
