@@ -19,22 +19,22 @@ const LandingPage = () => {
 
     const features = [
         {
-            icon: <EditNoteIcon sx={{ fontSize: 48, color: '#87CEEB' }} />,
+            icon: <EditNoteIcon sx={{ fontSize: 48, color: '#eef4f6ff' }} />,
             title: 'Rich Text Editor',
             description: 'Powerful TipTap editor with formatting toolbar for bold, italic, headings, lists, and more.'
         },
         {
-            icon: <LocalOfferIcon sx={{ fontSize: 48, color: '#87CEEB' }} />,
+            icon: <LocalOfferIcon sx={{ fontSize: 48, color: '#eef4f6ff' }} />,
             title: 'Tag Management',
             description: 'Organize your notes with custom tags. Create, edit, and filter notes effortlessly.'
         },
         {
-            icon: <PictureAsPdfIcon sx={{ fontSize: 48, color: '#87CEEB' }} />,
+            icon: <PictureAsPdfIcon sx={{ fontSize: 48, color: '#eef4f6ff' }} />,
             title: 'PDF Export',
             description: 'Download your notes as beautifully formatted PDF documents with a single click.'
         },
         {
-            icon: <SaveIcon sx={{ fontSize: 48, color: '#87CEEB' }} />,
+            icon: <SaveIcon sx={{ fontSize: 48, color: '#eef4f6ff' }} />,
             title: 'Auto-Save',
             description: 'Never lose your work. All notes are automatically saved to your browser\'s local storage. But do not delete cache of your browser otherwise you can loose your work. Persistent saving feature will be added in future.'
         }
@@ -44,7 +44,7 @@ const LandingPage = () => {
         <Box
             sx={{
                 minHeight: '100vh',
-                background: 'linear-gradient(135deg, #667eea 0%, #975dd2ff 50%, #fc56fcff 100%)',
+                background: 'linear-gradient(135deg, #5580f7ff 0%, #38b6ff 40%, #eee7adff 80%)',
 
                 position: 'relative',
                 overflow: 'hidden',
@@ -68,6 +68,17 @@ const LandingPage = () => {
                 },
             }}
         >
+         <div style={{
+            position: 'fixed',
+            top: "0%",
+            left:"0%",
+            maxWidth:"100%" ,
+            inset:"0",
+            height:"100%"
+         }}>
+            <img src="/Notepad-icon.png" style={{width:"100%",height:"100%", objectFit:"cover", opacity:"0.5 "}} alt="notepad-logo" />
+         </div>
+            
             <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1, py: 8 }}>
                 <Helmet>
                     <title>Free Online Notepad - Create, Edit & Save Notes | SolviaWeb</title>
@@ -115,35 +126,49 @@ const LandingPage = () => {
                         <Box
                             sx={{
                                 textAlign: 'center',
-                                mb: 8,
+                                mb: 4,
                                 mt: 4,
+                                p:5,
+                                maxWidth:"80%",
+                                marginX:"auto",
+                                 background: 'rgba(255, 255, 255, 0.1)',
+                                            backdropFilter: 'blur(10px)',
+                                            borderRadius: '20px',
+                                            border: '1px solid rgba(255, 255, 255, 0.2)',
+                                            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
                             }}
                         >
                             <Typography
                                 variant="h1"
                                 sx={{
-                                    fontSize: { xs: '2.5rem', md: '4rem', lg: '5rem' },
+                                    fontSize: { xs: '2.5rem', md: '4rem', lg: '6rem' },
                                     fontWeight: 800,
                                     background: 'linear-gradient(135deg, #ffffff 0%, #e0f7ff 100%)',
                                     WebkitBackgroundClip: 'text',
                                     WebkitTextFillColor: 'transparent',
                                     backgroundClip: 'text',
                                     mb: 3,
+
                                     textShadow: '0 4px 20px rgba(0,0,0,0.3)',
                                     letterSpacing: '-0.02em',
-                                    fontFamily: 'Verdana, sans-serif',
+                                    fontFamily:"Verdana, sans-serif",
                                 }}
                             >
                                 NotePad
                             </Typography>
 
+                            <Typography fontWeight={"bold"} sx={{fontSize: "1rem", color: "#dcdfecff", mb: 3, fontStyle:"italic",    background: 'linear-gradient(135deg, #87CEEB 0%, #4A90E2 100%)', borderRadius:"10px", padding:"10px", width:"200px", marginX:"auto"}}>
+                                By <a style={{ color: "#dcdfecff", textDecoration: "none", fontWeight: "bold", fontSize: "1rem", fontStyle:"italic" }} href="http://solviaweb.com" target="_blank" rel="noopener noreferrer">SolviaWeb</a>
+                            </Typography>
+
                             <Typography
                                 variant="h4" component="h2"
                                 sx={{
-                                    fontSize: { xs: '1.25rem', md: '1.5rem', lg: '1.7rem' },
+                                    fontSize: { xs: '0.8rem', md: '1.5rem', lg: '1.7rem' },
                                     fontWeight: 500,
                                     color: '#ffffff',
                                     mb: 3,
+                                    fontStyle:"italic",
                                     textShadow: '0 2px 10px rgba(0,0,0,0.2)',
                                     mx: 'auto',
                                     lineHeight: 1.4,
@@ -161,15 +186,16 @@ const LandingPage = () => {
                                 endIcon={<ArrowForwardIcon />}
                                 onClick={() => navigate('/notes')}
                                 sx={{
-                                    fontSize: { xs: '1rem', md: '1.125rem' },
+                                    fontSize: { xs: '0.8rem', md: '1.15rem' },
                                     fontWeight: 600,
-                                    px: 5,
-                                    py: 2,
-                                    borderRadius: '50px',
+                                    px: {xs:3, md:5},
+                                    py: {xs:1.5, md:2},
+                                    borderRadius: '20px',
+                                    border:"1px solid #fff",
                                     background: 'linear-gradient(135deg, #87CEEB 0%, #4A90E2 100%)',
                                     color: '#fff',
                                     boxShadow: '0 8px 32px rgba(135, 206, 235, 0.4)',
-                                    transition: 'all 0.5s ease-in-out',
+                                    transition: 'all 0.7s ease-in-out',
                                     '&:hover': {
                                         background: 'linear-gradient(135deg, #4A90E2 0%, #87CEEB 100%)',
                                         transform: 'translateY(-3px)',
@@ -290,7 +316,7 @@ const LandingPage = () => {
                                 px: 4,
                                 py: 1.5,
                                 borderRadius: '50px',
-                                borderColor: '#87CEEB',
+                                borderColor: '#ffffff',
                                 borderWidth: 2,
                                 color: '#ffffff',
                                 transition: 'all 0.3s ease',

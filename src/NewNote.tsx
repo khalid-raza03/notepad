@@ -30,7 +30,7 @@ const NewNote = ({ onSubmit, onAddTag, availableTags }: NewNoteProps) => {
                 letterSpacing: '-0.02em',
                 color: 'text.primary',
                 py: 4,
-            }}>Create New Note</Typography>
+            }}>Create Note</Typography>
             <NoteForm onSubmit={onSubmit} onAddTag={onAddTag} availableTags={availableTags} />
         </Box>
 

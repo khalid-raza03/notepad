@@ -262,8 +262,8 @@ type simplifiedNote = {
 function NoteCard({ id, title, tags, theme }: simplifiedNote & { theme?: any }) {
     const baseSx: any = {
         textDecoration: 'none',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
+        backdropFilter: 'blur(26px)',
+        WebkitBackdropFilter: 'blur(26px)',
         borderRadius: 3,
         boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
         height: '100%',
@@ -312,8 +312,8 @@ function NoteCard({ id, title, tags, theme }: simplifiedNote & { theme?: any }) 
                                     py: 0.5,
                                     borderRadius: 1,
                                     bgcolor: (theme) => theme.palette.mode === 'light'
-                                        ? 'rgba(51, 112, 255, 0.1)'
-                                        : 'rgba(75, 132, 255, 0.2)',
+                                        ? 'rgba(228, 232, 240, 0.74)'
+                                        : 'rgba(235, 237, 241, 0.81)',
                                     color: 'primary.main',
                                     fontWeight: 600,
                                     fontSize: '0.75rem',
@@ -380,7 +380,7 @@ function EditTagsModal({ availableTags, handleClose, opened, updateTag, deleteTa
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        maxWidth: '520px',
+        maxWidth: { xs: "100%", md: "520px" },
         maxHeight: '80vh',
         width: { xs: "100%", md: "90%" },
         background: 'linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.08))',
@@ -491,7 +491,7 @@ function EditTagsModal({ availableTags, handleClose, opened, updateTag, deleteTa
                                     }
                                 }}
                             >
-                                <Grid size={{ xs: 9 }}>
+                                <Grid size={{ xs: 8, md: 10 }}>
                                     <Item sx={{ bgcolor: "transparent" }}>
                                         <TextField
                                             label="Tag Name"
@@ -517,7 +517,7 @@ function EditTagsModal({ availableTags, handleClose, opened, updateTag, deleteTa
                                     </Item>
                                 </Grid>
                                 <Grid size={{ xs: 'auto' }}>
-                                    <Item sx={{ bgcolor: "#d32f2f", borderRadius: "50%" }}>
+                                    <Item sx={{ bgcolor: "#d32f2f", borderRadius: "50%", height: "50px", width: "50px", display: "flex", justifyContent: "center", alignItems: "center" }}>
                                         <Button
                                             onClick={() => deleteTag(tag.id)}
                                             sx={{
@@ -530,7 +530,7 @@ function EditTagsModal({ availableTags, handleClose, opened, updateTag, deleteTa
                                                 }
                                             }}
                                         >
-                                            <ClearOutlined sx={{ fontSize: { xs: "20px", md: "35px" }, color: "white" }} />
+                                            <ClearOutlined sx={{ fontSize: { xs: "20px", md: "25px" }, color: "white" }} />
                                         </Button>
                                     </Item>
                                 </Grid>
