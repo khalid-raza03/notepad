@@ -81,7 +81,7 @@ const LandingPage = () => {
             
             <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1, py: 8 }}>
                 <Helmet>
-                    <title>Free Online Notepad - Create, Edit & Save Notes | SolviaWeb</title>
+                    <title>Free Online Notepad - Create, Edit & Save Notes </title>
                     <meta name="description" content="A powerful, free online notepad with rich text editing, tag management, and PDF export. Automatically save your notes locally. No login required." />
                     <meta name="keywords" content="online notepad, free notepad, rich text editor, markdown editor, note taking app, pdf export notes" />
                     <link rel="canonical" href="https://notepad.solviaweb.com/" />
@@ -156,10 +156,10 @@ const LandingPage = () => {
                             >
                                 NotePad
                             </Typography>
-
+{/* 
                             <Typography fontWeight={"bold"} sx={{fontSize: "1rem", color: "#dcdfecff", mb: 3, fontStyle:"italic",    background: 'linear-gradient(135deg, #87CEEB 0%, #4A90E2 100%)', borderRadius:"10px", padding:"10px", width:"200px", marginX:"auto"}}>
                                 By <a style={{ color: "#dcdfecff", textDecoration: "none", fontWeight: "bold", fontSize: "1rem", fontStyle:"italic" }} href="http://solviaweb.com" target="_blank" rel="noopener noreferrer">SolviaWeb</a>
-                            </Typography>
+                            </Typography> */}
 
                             <Typography
                                 variant="h4" component="h2"
