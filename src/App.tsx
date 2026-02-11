@@ -136,7 +136,7 @@ function App() {
           zIndex: -1,
           pointerEvents: 'none'
         }}>
-          <img src="/Notepad-icon.png" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: "0.35" }} alt="notepad-logo" />
+          <img src="/Notepad-bg.webp" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: "0.35" }} alt="notepad-logo" />
         </div>
         <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
           <Suspense fallback={
