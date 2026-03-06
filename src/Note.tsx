@@ -1,9 +1,14 @@
 import React from 'react';
-import { Box, Button, Grid, Stack, Typography, Select, MenuItem, FormControl, InputLabel, useTheme } from "@mui/material";
+import { Box, Button, Grid, Stack, Typography, useTheme, Tooltip, IconButton } from "@mui/material";
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import PrintIcon from '@mui/icons-material/Print';
+import { DarkMode, LightMode } from '@mui/icons-material';
+import { useThemeContext } from './ThemeContext';
 import { useNote } from "./useNote";
 import { Link } from "react-router-dom";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Document, Page, Text, View, StyleSheet, PDFDownloadLink, Image } from '@react-pdf/renderer';
+import { loadFontsFromHtml, mapGoogleFontToPdfFont } from "./utils/GoogleFonts";
 
 
 type NoteProps = {
@@ -25,6 +30,12 @@ function renderHtmlToPdf(html: string) {
             walk(child, i)
         );
 
+        // Extract font-family from style attribute if present
+        const fontFamily = node.style.fontFamily || 'Helvetica';
+        // Clean font-family: remove quotes and get first font in list
+        const cleanFont = fontFamily.replace(/["']/g, '').split(',')[0].trim();
+        const pdfFont = mapGoogleFontToPdfFont(cleanFont);
+
         switch (node.tagName.toLowerCase()) {
             case "div":
                 return <View key={key}>{children}</View>;
@@ -33,36 +44,36 @@ function renderHtmlToPdf(html: string) {
                 return <Text key={key}>{"\n"}</Text>;
 
             case "strong":
-                return <Text key={key} style={{ fontWeight: "bold" }}>{children}</Text>;
+                return <Text key={key} style={{ fontWeight: "bold", fontFamily: pdfFont }}>{children}</Text>;
 
             case "em":
-                return <Text key={key} style={{ fontStyle: "italic" }}>{children}</Text>;
+                return <Text key={key} style={{ fontStyle: "italic", fontFamily: pdfFont }}>{children}</Text>;
 
             case "p":
-                return <Text key={key} style={{ marginBottom: 8 }}>{children}</Text>;
+                return <Text key={key} style={{ marginBottom: 8, fontFamily: pdfFont }}>{children}</Text>;
 
             case "h1":
-                return <Text key={key} style={{ fontSize: 22, fontWeight: "bold", marginBottom: 10 }}>{children}</Text>;
+                return <Text key={key} style={{ fontSize: 22, fontWeight: "bold", marginBottom: 10, fontFamily: pdfFont }}>{children}</Text>;
 
             case "h2":
-                return <Text key={key} style={{ fontSize: 18, fontWeight: "bold", marginBottom: 8 }}>{children}</Text>;
+                return <Text key={key} style={{ fontSize: 18, fontWeight: "bold", marginBottom: 8, fontFamily: pdfFont }}>{children}</Text>;
 
             case "h3":
-                return <Text key={key} style={{ fontSize: 14, fontWeight: "bold", marginBottom: 6 }}>{children}</Text>;
+                return <Text key={key} style={{ fontSize: 14, fontWeight: "bold", marginBottom: 6, fontFamily: pdfFont }}>{children}</Text>;
 
 
             case "b":
-                return <Text key={key} style={{ fontWeight: "bold" }}>{children}</Text>;
+                return <Text key={key} style={{ fontWeight: "bold", fontFamily: pdfFont }}>{children}</Text>;
 
 
             case "i":
-                return <Text key={key} style={{ fontStyle: "italic" }}>{children}</Text>;
+                return <Text key={key} style={{ fontStyle: "italic", fontFamily: pdfFont }}>{children}</Text>;
 
             case "span":
                 return (
                     <Text
                         key={key}
-                        style={{ color: node.style.color || "black" }}
+                        style={{ color: node.style.color || "black", fontFamily: pdfFont }}
                     >
                         {children}
                     </Text>
@@ -72,7 +83,7 @@ function renderHtmlToPdf(html: string) {
                 return (
                     <Text
                         key={key}
-                        style={{ color: "blue", textDecoration: "underline" }}
+                        style={{ color: "blue", textDecoration: "underline", fontFamily: pdfFont }}
                     >
                         {children}
                     </Text>
@@ -97,7 +108,7 @@ function renderHtmlToPdf(html: string) {
                 return (
                     <View key={key} style={{ marginBottom: 8 }}>
                         {Array.from(node.children).map((li, i) => (
-                            <Text key={i}>• {li.textContent}</Text>
+                            <Text key={i} style={{ fontFamily: pdfFont }}>• {li.textContent}</Text>
                         ))}
                     </View>
                 );
@@ -106,13 +117,13 @@ function renderHtmlToPdf(html: string) {
                 return (
                     <View key={key} style={{ marginBottom: 8 }}>
                         {Array.from(node.children).map((li, i) => (
-                            <Text key={i}>{i + 1}. {li.textContent}</Text>
+                            <Text key={i} style={{ fontFamily: pdfFont }}>{i + 1}. {li.textContent}</Text>
                         ))}
                     </View>
                 );
 
             default:
-                return <Text key={key}>{children}</Text>;
+                return <Text key={key} style={{ fontFamily: pdfFont }}>{children}</Text>;
         }
     };
 
@@ -124,13 +135,18 @@ export function Note({ deleteNote }: NoteProps) {
     const note = useNote();
     const theme = useTheme();
     const [bgColor, setBgColor] = useState("");
-    const [fontFamily, setFontFamily] = useState("sans-serif");
+    const { mode, toggleTheme } = useThemeContext();
+
+    // Load custom fonts from note HTML on mount
+    useEffect(() => {
+        loadFontsFromHtml(note.description);
+    }, [note.description]);
 
     const styles = StyleSheet.create({
         page: {
             flexDirection: 'column',
             backgroundColor: bgColor,
-            fontFamily: fontFamily === 'serif' ? 'Times-Roman' : fontFamily === 'monospace' ? 'Courier' : 'Helvetica',
+            fontFamily: 'Helvetica',
             padding: 30,
         },
         title: {
@@ -210,12 +226,8 @@ export function Note({ deleteNote }: NoteProps) {
                         md: 4,
                     },
                     borderRadius: 3,
-                    fontFamily: fontFamily,
                     transition: 'all 0.3s ease',
                     boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                    "& *": {
-                        fontFamily: "inherit !important",
-                    },
                     backgroundColor: bgColor || theme.palette.background.paper,
                 }}
             >
@@ -318,7 +330,7 @@ export function Note({ deleteNote }: NoteProps) {
                             <Button
                                 variant="outlined"
                                 component={Link}
-                                to="/"
+                                to="/notes"
                                 onClick={() => {
                                     deleteNote(note.id);
                                 }}
@@ -348,6 +360,23 @@ export function Note({ deleteNote }: NoteProps) {
                             >
                                 Back
                             </Button>
+                            <Button
+                                onClick={toggleTheme}
+                                variant="outlined"
+                                sx={{
+                                    '&:hover': { transform: 'scale(1.05)' },
+                                    borderRadius: { xs: "50px", sm: "8px" },
+                                    transition: 'all 0.3s ease-in-out',
+                                    color: 'text.primary',
+                                    borderColor: 'divider',
+                                    backgroundColor: 'background.paper',
+                                }}
+                            >
+                                <Typography sx={{ display: { xs: "none", md: "block" }, margin: "0 6px" }}>
+                                    {mode === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                                </Typography>
+                                {mode === 'dark' ? <LightMode /> : <DarkMode />}
+                            </Button>
                         </Stack>
                     </Grid>
 
@@ -376,78 +405,56 @@ export function Note({ deleteNote }: NoteProps) {
                             />
                         </Box>
 
-
-
-                        {/* Font family */}
-                        <FormControl size="small" sx={{ minWidth: 120 }}>
-                            <InputLabel>Font Family</InputLabel>
-                            <Select
-                                value={fontFamily}
-                                onChange={(e) => setFontFamily(e.target.value)}
-                                label="Font Family"
-                                size="small"
+                        <Stack direction="row" alignItems="center" gap={0.5}>
+                            <PDFDownloadLink
+                                document={pdfDocument}
+                                fileName={`${note.title || 'note'}.pdf`}
+                                style={{ textDecoration: 'none' }}
                             >
-                                {/* Generic families */}
-                                <MenuItem value="serif">Serif (Default)</MenuItem>
-                                <MenuItem value="sans-serif">Sans-serif</MenuItem>
-                                <MenuItem value="monospace">Monospace</MenuItem>
-                                <MenuItem value="cursive">Cursive</MenuItem>
+                                {({ loading }) => (
+                                    <Button
+                                        variant="outlined"
+                                        disabled={loading}
+                                        sx={{
+                                            transition: 'all 0.3s ease',
+                                            '&:hover': {
+                                                transform: 'scale(1.05)',
+                                                boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                                            }
+                                        }}
+                                    >
+                                        {loading ? 'Generating...' : 'Download PDF'}
+                                    </Button>
+                                )}
+                            </PDFDownloadLink>
+                            <Tooltip title="Less file size, only default fonts support. few formattings might not work" arrow>
+                                <IconButton size="small">
+                                    <InfoOutlinedIcon fontSize="small" />
+                                </IconButton>
+                            </Tooltip>
+                        </Stack>
 
-                                {/* Specific system fonts */}
-                                <MenuItem value="Verdana, Geneva, sans-serif">Verdana</MenuItem>
-                                <MenuItem value="'Times New Roman', Times, serif">Times New Roman</MenuItem>
-                                <MenuItem value="'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif">
-                                    Franklin Gothic
-                                </MenuItem>
-                                <MenuItem value="'Lucida Sans', 'Lucida Sans Unicode', 'Lucida Grande', sans-serif">
-                                    Lucida Sans
-                                </MenuItem>
-                                <MenuItem value="'Gill Sans', 'Gill Sans MT', Calibri, sans-serif">
-                                    Gill Sans
-                                </MenuItem>
-                                <MenuItem value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">
-                                    Segoe UI
-                                </MenuItem>
-                                <MenuItem value="'Trebuchet MS', Helvetica, sans-serif">
-                                    Trebuchet MS
-                                </MenuItem>
-                                <MenuItem value="Arial, Helvetica, sans-serif">
-                                    Arial
-                                </MenuItem>
-                                <MenuItem value="Cambria, Cochin, Georgia, Times, 'Times New Roman', serif">
-                                    Cambria
-                                </MenuItem>
-                                <MenuItem value="Georgia, 'Times New Roman', Times, serif">
-                                    Georgia
-                                </MenuItem>
-                                <MenuItem value="Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif">
-                                    Impact
-                                </MenuItem>
-                            </Select>
-
-                        </FormControl>
-
-                        <PDFDownloadLink
-                            document={pdfDocument}
-                            fileName={`${note.title || 'note'}.pdf`}
-                            style={{ textDecoration: 'none' }}
-                        >
-                            {({ loading }) => (
-                                <Button
-                                    variant="outlined"
-                                    disabled={loading}
-                                    sx={{
-                                        transition: 'all 0.3s ease',
-                                        '&:hover': {
-                                            transform: 'scale(1.05)',
-                                            boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
-                                        }
-                                    }}
-                                >
-                                    {loading ? 'Generating PDF...' : 'Download PDF'}
-                                </Button>
-                            )}
-                        </PDFDownloadLink>
+                        <Stack direction="row" alignItems="center" gap={0.5}>
+                            <Button
+                                variant="outlined"
+                                startIcon={<PrintIcon />}
+                                onClick={() => window.print()}
+                                sx={{
+                                    transition: 'all 0.3s ease',
+                                    '&:hover': {
+                                        transform: 'scale(1.05)',
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                                    }
+                                }}
+                            >
+                                Print to PDF
+                            </Button>
+                            <Tooltip title="Supports everything but higher file size" arrow>
+                                <IconButton size="small">
+                                    <InfoOutlinedIcon fontSize="small" />
+                                </IconButton>
+                            </Tooltip>
+                        </Stack>
                     </Stack>
 
                 </Grid>
@@ -490,7 +497,7 @@ export function Note({ deleteNote }: NoteProps) {
                         }
                     }}>
                     <div
-                        dangerouslySetInnerHTML={{ __html: note.description.replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&') }}
+                        dangerouslySetInnerHTML={{ __html: note.description }}
                         style={{
                             color: 'inherit',
                             fontFamily: 'inherit'

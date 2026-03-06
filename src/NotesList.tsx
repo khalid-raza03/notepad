@@ -197,6 +197,38 @@ export default function NotesList({ availableTags, notes, updateTag, deleteTag }
                                     '&:hover': {
                                         boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                                     }
+                                }),
+                                option: (base, state) => ({
+                                    ...base,
+                                    backgroundColor: state.isSelected 
+                                        ? '#667eea' 
+                                        : state.isFocused 
+                                        ? 'rgba(102, 126, 234, 0.1)' 
+                                        : '#8195f0',
+                                    color: state.isSelected ? 'white' : '#333',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s ease',
+                                    '&:active': {
+                                        backgroundColor: '#667eea'
+                                    }
+                                }),
+                                multiValue: (base) => ({
+                                    ...base,
+                                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                                    borderRadius: '6px',
+                                }),
+                                multiValueLabel: (base) => ({
+                                    ...base,
+                                    color: '#667eea',
+                                    fontWeight: 600,
+                                }),
+                                multiValueRemove: (base) => ({
+                                    ...base,
+                                    color: '#667eea',
+                                    '&:hover': {
+                                        backgroundColor: '#667eea',
+                                        color: 'white',
+                                    }
                                 })
                             }}
                             options={availableTags.map(tag => ({
@@ -290,12 +322,12 @@ function NoteCard({ id, title, tags, theme }: simplifiedNote & { theme?: any }) 
             }}
         >
             <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <Typography variant="h5" component="h2" sx={{
-                    fontWeight: 600,
+                <Typography variant="h5" component="h5" sx={{
+                    fontWeight: 500,
                     color: 'text.primary',
-                    fontSize: "calc(16px + (24 - 16) * ((100vw - 320px) / (1820 - 320)))",
+                    fontSize: "calc(16px + (16 - 12) * ((100vw - 320px) / (1820 - 320)))",
                     fontStyle: 'italic',
-                    transition: 'color 0.3s ease',
+                    transition: 'color 0.3s ease-in-out',
                     '&:hover': {
                         color: '#667eea'
                     }

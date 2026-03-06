@@ -28,6 +28,19 @@ export const FontSize = Extension.create({
               };
             },
           },
+          fontFamily: {
+            default: null,
+            parseHTML: element =>
+              element.style.fontFamily || null,
+            renderHTML: attributes => {
+              if (!attributes.fontFamily) {
+                return {};
+              }
+              return {
+                style: `font-family: "${attributes.fontFamily}"`,
+              };
+            },
+          },
         },
       },
     ];
@@ -48,6 +61,22 @@ export const FontSize = Extension.create({
           ({ chain }) => {
             return chain()
               .setMark("textStyle", { fontSize: null })
+              .run();
+          },
+
+      setFontFamily:
+        (fontFamily: string) =>
+          ({ chain }) => {
+            return chain()
+              .setMark("textStyle", { fontFamily: fontFamily })
+              .run();
+          },
+
+      unsetFontFamily:
+        () =>
+          ({ chain }) => {
+            return chain()
+              .setMark("textStyle", { fontFamily: null })
               .run();
           },
     };

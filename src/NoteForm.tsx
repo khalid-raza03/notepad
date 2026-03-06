@@ -17,8 +17,8 @@ import TextFormatTwoToneIcon from '@mui/icons-material/TextFormatTwoTone';
 import FormatColorTextTwoToneIcon from '@mui/icons-material/FormatColorTextTwoTone';
 import FormatItalicIcon from "@mui/icons-material/FormatItalic";
 import CloseIcon from "@mui/icons-material/Close";
-import { Link, useNavigate } from "react-router-dom";
-import { useRef, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { useRef, useState, useEffect } from "react";
 import type { NotesData, Tag } from "./App";
 import { v4 as uuidV4 } from "uuid";
 import { useEditor, EditorContent, Editor } from "@tiptap/react";
@@ -38,10 +38,11 @@ import { getThemeById, getStoredThemes } from "./Themes";
 
 
 
-import { FormatBold, FormatColorResetTwoTone, FormatStrikethroughSharp, FormatUnderlined, Undo, Redo, PictureAsPdf, FormatSize, Search, FindReplace } from "@mui/icons-material";
+import { FormatBold, FormatColorResetTwoTone, FormatStrikethroughSharp, FormatUnderlined, Undo, Redo, PictureAsPdf, FormatSize, FindReplace } from "@mui/icons-material";
 import { CircleCheckBig, Code, Heading1, Heading2, Heading3, ImageUpIcon, Link2Icon, Link2Off, List, ListOrdered, } from 'lucide-react';
 import { TextStyle } from "@tiptap/extension-text-style";
 import { SearchAndReplace } from "./utils/SearchAndReplace";
+import { fetchGoogleFonts, loadFont, applyFontToEditor, getSavedFont, saveSelectedFont } from "./utils/GoogleFonts";
 import * as pdfjsLib from 'pdfjs-dist';
 import type { TextItem, TextMarkedContent } from "pdfjs-dist/types/src/display/api";
 
@@ -78,6 +79,9 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
   const colorInputRef = useRef<HTMLInputElement>(null);
   const selectedImageAttrs = editor?.getAttributes("image") || {};
   const isImageSelected = editor?.isActive("image") || false;
+  const [fonts, setFonts] = useState<Array<{ family: string; category: string }>>([]);
+  const [selectedFont, setSelectedFont] = useState<string>(() => getSavedFont());
+  const [fontsLoading, setFontsLoading] = useState(true);
 
   type OpenMenu = "align" | "format" | null;
 
@@ -91,6 +95,26 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
 
   const [showSearch, setShowSearch] = useState(false);
 
+  // Fetch Google Fonts on mount
+  useEffect(() => {
+    const loadFonts = async () => {
+      setFontsLoading(true);
+      try {
+        const fetchedFonts = await fetchGoogleFonts();
+        setFonts(fetchedFonts as Array<{ family: string; category: string }>);
+
+        // Load and apply the saved font
+        const savedFont = getSavedFont();
+        loadFont(savedFont);
+        applyFontToEditor(editor, savedFont);
+      } catch (error) {
+        console.error("Failed to load fonts:", error);
+      } finally {
+        setFontsLoading(false);
+      }
+    };
+    loadFonts();
+  }, [editor]);
 
   if (!editor) return;
 
@@ -525,6 +549,34 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
           />
         </Box>
 
+        <Box display={"flex"} alignItems={"center"} gap={1}>
+          <TextFormatTwoToneIcon titleAccess="select font family" />
+          <Autocomplete
+            size="small"
+            options={fonts.map((font) => font.family)}
+            value={selectedFont}
+            onChange={(_, newValue) => {
+              if (newValue) {
+                setSelectedFont(newValue);
+                saveSelectedFont(newValue);
+                loadFont(newValue);
+                applyFontToEditor(editor, newValue);
+              }
+            }}
+            loading={fontsLoading}
+            freeSolo
+            sx={{ width: 150 }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Font"
+                size="small"
+                placeholder="Select font..."
+              />
+            )}
+          />
+        </Box>
+
         <Button
           size="small"
           variant="outlined"
@@ -616,6 +668,7 @@ export function NoteForm({
   const [targetTags, setTargetTags] = useState<Tag[]>(tags);
   const navigate = useNavigate();
   const location = useLocation();
+  const { id: noteId } = useParams<{ id: string }>();
 
   const themeId = propThemeId ?? location.state?.themeId ?? "glass";
 
@@ -668,7 +721,32 @@ export function NoteForm({
       tags: targetTags,
       themeId,
     });
-    navigate("/notes");
+
+    // Redirect to the specific note
+    if (noteId) {
+      // For editing, we have the ID from URL params
+      navigate(`/${noteId}`);
+    } else {
+      // For creating, retrieve the newly created note from localStorage
+      const savedNotes = localStorage.getItem("Notes");
+      if (savedNotes) {
+        try {
+          const notes = JSON.parse(savedNotes);
+          // Get the last note (most recently created)
+          if (notes.length > 0) {
+            const lastNote = notes[notes.length - 1];
+            navigate(`/${lastNote.id}`);
+          } else {
+            navigate("/notes");
+          }
+        } catch (error) {
+          console.error("Failed to get created note ID:", error);
+          navigate("/notes");
+        }
+      } else {
+        navigate("/notes");
+      }
+    }
   }
 
   const rowColSx = {
