@@ -1,56 +1,18 @@
-// Google Fonts utility for fetching and managing fonts
-// API key is loaded from .env file: VITE_GOOGLE_FONTS_API_KEY
+// Google Fonts utility for loading fonts dynamically
+// Uses static fonts.json file instead of API calls
 
-const GOOGLE_FONTS_API_KEY = import.meta.env.VITE_GOOGLE_FONTS_API_KEY || '';
+import fontsData from '../fonts.json';
 
 interface GoogleFont {
     family: string;
-    variants: string[];
     category: string;
 }
-
-// Fallback popular fonts if API fails
-const POPULAR_FONTS: GoogleFont[] = [
-    { family: 'Arial', variants: ['400', '700'], category: 'sans-serif' },
-    { family: 'Courier New', variants: ['400', '700'], category: 'monospace' },
-    { family: 'Georgia', variants: ['400', '700'], category: 'serif' },
-    { family: 'IBM Plex Mono', variants: ['400', '700'], category: 'monospace' },
-    { family: 'Inter', variants: ['400', '500', '700'], category: 'sans-serif' },
-    { family: 'JetBrains Mono', variants: ['400', '700'], category: 'monospace' },
-    { family: 'Lato', variants: ['400', '700'], category: 'sans-serif' },
-    { family: 'Merriweather', variants: ['400', '700'], category: 'serif' },
-    { family: 'Montserrat', variants: ['400', '700'], category: 'sans-serif' },
-    { family: 'Open Sans', variants: ['400', '700'], category: 'sans-serif' },
-    { family: 'Playfair Display', variants: ['400', '700', '900'], category: 'serif' },
-    { family: 'Poppins', variants: ['400', '600', '700'], category: 'sans-serif' },
-    { family: 'Roboto', variants: ['400', '500', '700'], category: 'sans-serif' },
-];
 
 // Cache for loaded fonts
 const loadedFonts = new Set<string>();
 
 export async function fetchGoogleFonts(): Promise<GoogleFont[]> {
-    // If no API key is set, return popular fonts
-    if (GOOGLE_FONTS_API_KEY === 'YOUR_GOOGLE_FONTS_API_KEY') {
-        console.warn('Google Fonts API key not configured. Using fallback fonts.');
-        return POPULAR_FONTS;
-    }
-
-    try {
-        const response = await fetch(
-            `https://www.googleapis.com/webfonts/v1/webfonts?key=${GOOGLE_FONTS_API_KEY}&sort=popularity`
-        );
-
-        if (!response.ok) {
-            throw new Error('Failed to fetch fonts');
-        }
-
-        const data = await response.json();
-        return data.items.slice(0, 200); // Limit to 200 popular fonts for performance
-    } catch (error) {
-        console.error('Error fetching Google Fonts:', error);
-        return POPULAR_FONTS;
-    }
+    return fontsData;
 }
 
 export function loadFont(fontFamily: string): void {

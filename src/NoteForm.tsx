@@ -38,17 +38,11 @@ import { getThemeById, getStoredThemes } from "./Themes";
 
 
 
-import { FormatBold, FormatColorResetTwoTone, FormatStrikethroughSharp, FormatUnderlined, Undo, Redo, PictureAsPdf, FormatSize, FindReplace } from "@mui/icons-material";
+import { FormatBold, FormatColorResetTwoTone, FormatStrikethroughSharp, FormatUnderlined, Undo, Redo, FormatSize, FindReplace, PhotoSizeSelectLarge } from "@mui/icons-material";
 import { CircleCheckBig, Code, Heading1, Heading2, Heading3, ImageUpIcon, Link2Icon, Link2Off, List, ListOrdered, } from 'lucide-react';
 import { TextStyle } from "@tiptap/extension-text-style";
 import { SearchAndReplace } from "./utils/SearchAndReplace";
 import { fetchGoogleFonts, loadFont, applyFontToEditor, getSavedFont, saveSelectedFont } from "./utils/GoogleFonts";
-import * as pdfjsLib from 'pdfjs-dist';
-import type { TextItem, TextMarkedContent } from "pdfjs-dist/types/src/display/api";
-
-if (typeof window !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-}
 
 // Scrollbar styles that can be used across all components in this file
 const scrollbarStyles = {
@@ -69,12 +63,6 @@ const scrollbarStyles = {
   },
 };
 
-function isTextItem(
-  item: TextItem | TextMarkedContent
-): item is TextItem {
-  return "str" in item;
-}
-
 function EditorToolbar({ editor }: { editor: Editor | null }) {
   const colorInputRef = useRef<HTMLInputElement>(null);
   const selectedImageAttrs = editor?.getAttributes("image") || {};
@@ -83,7 +71,7 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
   const [selectedFont, setSelectedFont] = useState<string>(() => getSavedFont());
   const [fontsLoading, setFontsLoading] = useState(true);
 
-  type OpenMenu = "align" | "format" | null;
+  type OpenMenu = "align" | "format" | "imageAlign" | null;
 
   const [menuState, setMenuState] = useState<{
     anchorEl: HTMLElement | null;
@@ -155,53 +143,6 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
   const updateImageSize = (width: number) => {
     editor?.chain().focus().updateAttributes("image", { width }).run();
   };
-
-
-  const addPdfFromDevice = () => {
-    if (!editor) return;
-
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "application/pdf";
-
-    input.onchange = async () => {
-      const file = input.files?.[0];
-      if (!file) return;
-
-      try {
-        const arrayBuffer = await file.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-
-        let text = "";
-
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const textContent = await page.getTextContent();
-
-          const pageText = textContent.items
-            .filter(isTextItem)
-            .map(item => item.str)
-            .join(" ");
-
-          text += pageText + "\n\n";
-        }
-
-        const html = text
-          .split("\n\n")
-          .filter(p => p.trim())
-          .map(p => `<p>${p.trim()}</p>`)
-          .join("");
-
-        editor.chain().focus().setContent(html).run();
-      } catch (err) {
-        console.error("PDF parse error:", err);
-        alert("Failed to read PDF");
-      }
-    };
-
-    input.click();
-  };
-
 
   const addImageFromDevice = () => {
     if (!editor) return;
@@ -489,23 +430,12 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
         <Button
           size="small"
           variant="outlined"
-          title="pdf to text"
-          sx={{ backgroundColor: "white" }}
-          onClick={addPdfFromDevice}
-        >
-          <PictureAsPdf />
-        </Button>
-
-        <Button
-          size="small"
-          variant="outlined"
           onClick={addImageFromDevice}
           sx={{ backgroundColor: "white" }}
         >
           <ImageUpIcon />
         </Button>
-        {isImageSelected && (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <TextField
               size="small"
               type="number"
@@ -515,8 +445,46 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
               inputProps={{ min: 50, max: 600 }}
               sx={{ width: 110 }}
             />
+            <IconButton
+              size="small"
+              onClick={handleMenuOpen("imageAlign")}
+              sx={{ border: "1px solid rgba(0,0,0,0.23)", borderRadius: 1 }}
+              title="Align Image"
+            >
+              <span style={{fontSize:"14px", padding:"5px", borderRadius:"12px" , fontWeight:"bold"}}>Align Image</span>
+            </IconButton>
           </Box>
-        )}
+
+        <Menu
+          anchorEl={menuState.anchorEl}
+          open={menuState.menu === "imageAlign"}
+          onClose={handleMenuClose}
+        >
+          <MenuItem
+            onClick={() => {
+              editor?.chain().focus().updateAttributes("image", { align: "left" }).run();
+              handleMenuClose();
+            }}
+          >
+            <FormatAlignLeftIcon sx={{ mr: 1 }} /> Left
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              editor?.chain().focus().updateAttributes("image", { align: "center" }).run();
+              handleMenuClose();
+            }}
+          >
+            <FormatAlignCenterIcon sx={{ mr: 1 }} /> Center
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              editor?.chain().focus().updateAttributes("image", { align: "right" }).run();
+              handleMenuClose();
+            }}
+          >
+            <FormatAlignRightIcon sx={{ mr: 1 }} /> Right
+          </MenuItem>
+        </Menu>
 
         <Button
           size="small"
