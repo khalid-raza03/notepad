@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button, Grid, Stack, Typography, useTheme, Tooltip, IconButton } from "@mui/material";
+import { Box, Button, Grid, Stack, Typography, useTheme, Tooltip, IconButton, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import PrintIcon from '@mui/icons-material/Print';
 import { DarkMode, LightMode } from '@mui/icons-material';
@@ -136,6 +136,11 @@ export function Note({ deleteNote }: NoteProps) {
     const theme = useTheme();
     const [bgColor, setBgColor] = useState("");
     const { mode, toggleTheme } = useThemeContext();
+    const [infoDialog, setInfoDialog] = useState<{ open: boolean; title: string; message: string }>({ 
+        open: false, 
+        title: '', 
+        message: '' 
+    });
 
     // Load custom fonts from note HTML on mount
     useEffect(() => {
@@ -216,6 +221,35 @@ export function Note({ deleteNote }: NoteProps) {
                 }
             }}
         >
+            <Box sx={{
+                display:"flex",
+                alignItems:"center",
+                justifyContent:"flex-end",
+                padding:"20px 0",
+                width:"100%"
+            }}>
+                <Button
+                    onClick={toggleTheme}
+                    variant="outlined"
+                    sx={{
+                        '&:hover': { transform: 'scale(1.05)' },
+                        borderRadius: { xs: "50px", sm:"12px"},
+                        height:{ xs: "60px", sm:"auto"},
+                        width:{ xs: "60px", sm:"auto"},
+                        transition: 'all 0.3s ease-in-out',
+                        color: 'text.primary',
+                        borderColor: 'divider',
+
+                        backgroundColor: 'background.paper',
+                    }}
+                >
+                    <Typography sx={{ display: { xs: "none", md: "block" }, margin: "0 6px" }}>
+                        {mode === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                    </Typography>
+                    {mode === 'dark' ? <LightMode /> : <DarkMode />}
+                </Button>
+            </Box>
+
             <Box
                 id="note-pdf-content"
                 sx={{
@@ -360,36 +394,20 @@ export function Note({ deleteNote }: NoteProps) {
                             >
                                 Back
                             </Button>
-                            <Button
-                                onClick={toggleTheme}
-                                variant="outlined"
-                                sx={{
-                                    '&:hover': { transform: 'scale(1.05)' },
-                                    borderRadius: { xs: "50px", sm: "8px" },
-                                    transition: 'all 0.3s ease-in-out',
-                                    color: 'text.primary',
-                                    borderColor: 'divider',
-                                    backgroundColor: 'background.paper',
-                                }}
-                            >
-                                <Typography sx={{ display: { xs: "none", md: "block" }, margin: "0 6px" }}>
-                                    {mode === 'dark' ? 'Light Mode' : 'Dark Mode'}
-                                </Typography>
-                                {mode === 'dark' ? <LightMode /> : <DarkMode />}
-                            </Button>
+
                         </Stack>
                     </Grid>
 
                     <Stack direction="row" sx={{ gap: "20px" }} flexWrap="wrap" alignItems="center" className="pdf-exclude">
                         <Box sx={{
                             border: '2px solid #ddd',
-                            borderRadius: 1,
+                            borderRadius: { xs: "50px", sm:"12px"},
                             p: 0.5,
                             display: 'flex',
                             alignItems: 'center',
                             gap: 1
                         }}>
-                            <Typography variant="caption">Background:</Typography>
+                            <Typography variant="caption" sx={{ display: { sm: "inline-block", xs: "none" } }}>Background:</Typography>
                             <input
                                 type="color"
                                 value={bgColor}
@@ -399,7 +417,7 @@ export function Note({ deleteNote }: NoteProps) {
                                     height: '40px',
                                     border: 'none',
                                     padding: '5px',
-                                    borderRadius: '10px',
+                                    borderRadius: '50px',
                                     cursor: 'pointer'
                                 }}
                             />
@@ -427,11 +445,22 @@ export function Note({ deleteNote }: NoteProps) {
                                     </Button>
                                 )}
                             </PDFDownloadLink>
-                            <Tooltip title="Less file size, only default fonts support. few formattings might not work" arrow>
+                            <Tooltip title="Lesser file size but only default fonts and formattings supported" arrow sx={{ display: { xs: 'none', sm: 'block' } }}>
                                 <IconButton size="small">
                                     <InfoOutlinedIcon fontSize="small" />
                                 </IconButton>
                             </Tooltip>
+                            <IconButton 
+                                size="small" 
+                                sx={{ display: { xs: 'block', sm: 'none' } }}
+                                onClick={() => setInfoDialog({ 
+                                    open: true, 
+                                    title: 'Download PDF', 
+                                    message: 'Less file size but only default fonts support.Your chosen fonts may fallback to Helvetica/Times/Courier.' 
+                                })}
+                            >
+                                <InfoOutlinedIcon fontSize="small" />
+                            </IconButton>
                         </Stack>
 
                         <Stack direction="row" alignItems="center" gap={0.5}>
@@ -447,13 +476,25 @@ export function Note({ deleteNote }: NoteProps) {
                                     }
                                 }}
                             >
-                                Print to PDF
+                                <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>Print to PDF</Box>
+                                <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>Print</Box>
                             </Button>
-                            <Tooltip title="Supports everything but higher file size" arrow>
+                            <Tooltip title="Higher size but Perfect quality, all fonts and formattings preserved" arrow sx={{ display: { xs: 'none', sm: 'block' } }}>
                                 <IconButton size="small">
                                     <InfoOutlinedIcon fontSize="small" />
                                 </IconButton>
                             </Tooltip>
+                            <IconButton 
+                                size="small" 
+                                sx={{ display: { xs: 'block', sm: 'none' } }}
+                                onClick={() => setInfoDialog({ 
+                                    open: true, 
+                                    title: 'Print to PDF (some mobiles may not support)', 
+                                    message: 'Higher file size but Perfect quality with all fonts and formatting preserved. Tap Print, then select "Save as PDF" from your device\'s print dialog.' 
+                                })}
+                            >
+                                <InfoOutlinedIcon fontSize="small" />
+                            </IconButton>
                         </Stack>
                     </Stack>
 
@@ -505,6 +546,23 @@ export function Note({ deleteNote }: NoteProps) {
                     />
                 </Box>
             </Box>
+
+            <Dialog 
+                open={infoDialog.open} 
+                onClose={() => setInfoDialog({ ...infoDialog, open: false })}
+                maxWidth="xs"
+                fullWidth
+            >
+                <DialogTitle>{infoDialog.title}</DialogTitle>
+                <DialogContent>
+                    <Typography>{infoDialog.message}</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setInfoDialog({ ...infoDialog, open: false })} variant="contained">
+                        Got it
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Stack>
 
     );

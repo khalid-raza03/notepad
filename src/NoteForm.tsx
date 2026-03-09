@@ -38,7 +38,7 @@ import { getThemeById, getStoredThemes } from "./Themes";
 
 
 
-import { FormatBold, FormatColorResetTwoTone, FormatStrikethroughSharp, FormatUnderlined, Undo, Redo, FormatSize, FindReplace, PhotoSizeSelectLarge } from "@mui/icons-material";
+import { FormatBold, FormatColorResetTwoTone, FormatStrikethroughSharp, FormatUnderlined, Undo, Redo, FormatSize, FindReplace} from "@mui/icons-material";
 import { CircleCheckBig, Code, Heading1, Heading2, Heading3, ImageUpIcon, Link2Icon, Link2Off, List, ListOrdered, } from 'lucide-react';
 import { TextStyle } from "@tiptap/extension-text-style";
 import { SearchAndReplace } from "./utils/SearchAndReplace";
